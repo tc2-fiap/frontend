@@ -2,7 +2,7 @@
 
 # FIAP Games — Frontend
 
-React + Vite + TypeScript. Fala com todo backend através de uma única URL base relativa (`/api/*`) — o Ingress roteia por caminho, então este app nunca precisa de uma porta ou host específico por serviço. Ver [`../documentation/spec/instructions.md`](../documentation/spec/instructions.md) §7 (o repositório `documentation` também está publicado em [github.com/tc2-fiap/documentation](https://github.com/tc2-fiap/documentation)).
+React + Vite + TypeScript. Fala com todo backend através de uma única URL base relativa (`/api/*`) — o Ingress roteia por caminho, então este app nunca precisa de uma porta ou host específico por serviço. Ver [`instructions.md`](https://github.com/tc2-fiap/documentation/blob/main/spec/instructions.md) §7 no repositório `documentation` ([github.com/tc2-fiap/documentation](https://github.com/tc2-fiap/documentation), ou `../documentation/spec/instructions.md` se você o tiver clonado como irmão).
 
 ## Rodar de forma independente
 
