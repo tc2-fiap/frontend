@@ -1,0 +1,355 @@
+<title>FIAP Games Brand Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page-bg: #F7F5FB;
+    --page-surface: #FFFFFF;
+    --page-surface-2: #EFEAFA;
+    --page-text: #150E24;
+    --page-muted: #6A6280;
+    --page-border: #E4DFF0;
+    --page-accent: #6D28D9;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #0B0712;
+      --page-surface: #150C26;
+      --page-surface-2: #1A1030;
+      --page-text: #F5F3FF;
+      --page-muted: #B8AED0;
+      --page-border: #2C2145;
+      --page-accent: #A78BFA;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --page-bg: #0B0712;
+    --page-surface: #150C26;
+    --page-surface-2: #1A1030;
+    --page-text: #F5F3FF;
+    --page-muted: #B8AED0;
+    --page-border: #2C2145;
+    --page-accent: #A78BFA;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--page-bg);
+    color: var(--page-text);
+    font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 64px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--page-accent);
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(32px, 5vw, 44px);
+    letter-spacing: -0.02em;
+    margin: 8px 0 0;
+    text-wrap: balance;
+  }
+
+  header p.lede {
+    max-width: 60ch;
+    color: var(--page-muted);
+    font-size: 17px;
+    margin: 16px 0 0;
+  }
+
+  header .meta {
+    margin-top: 20px;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    color: var(--page-muted);
+  }
+
+  section { display: flex; flex-direction: column; gap: 18px; }
+
+  h2 {
+    font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .section-note {
+    color: var(--page-muted);
+    font-size: 15px;
+    max-width: 62ch;
+    margin: -8px 0 0;
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .split { grid-template-columns: 1fr; }
+  }
+
+  .tile {
+    border: 1px solid var(--page-border);
+    border-radius: 12px;
+    padding: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+  }
+
+  .tile.on-deep { background: #0B0712; }
+  .tile.on-surface { background: #1A1030; }
+  .tile.on-light { background: #FFFFFF; }
+
+  .tile-label {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--page-muted);
+    margin-top: 8px;
+  }
+
+  .tile-group { display: flex; flex-direction: column; gap: 8px; }
+
+  /* favicon true-size demo */
+  .tab-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--page-surface-2);
+    border: 1px solid var(--page-border);
+    border-radius: 8px 8px 0 0;
+    padding: 8px 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    color: var(--page-text);
+  }
+  .tab img, .tab svg { display: block; }
+
+  table.tokens {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+  }
+  table.tokens th {
+    text-align: left;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--page-muted);
+    font-weight: 400;
+    padding: 0 12px 10px;
+    border-bottom: 1px solid var(--page-border);
+  }
+  table.tokens td {
+    padding: 12px;
+    border-bottom: 1px solid var(--page-border);
+    vertical-align: middle;
+  }
+  table.tokens tr:last-child td { border-bottom: none; }
+  .swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .hex {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 13.5px;
+  }
+  table.tokens td:first-child { display: flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+
+  .type-block { display: flex; flex-direction: column; gap: 14px; }
+  .type-row .label {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    color: var(--page-muted);
+    margin-bottom: 4px;
+  }
+  .display-sample {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    letter-spacing: -0.02em;
+  }
+  .body-sample {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 16px;
+    max-width: 58ch;
+    color: var(--page-text);
+  }
+  .mono-sample {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 14px;
+    color: var(--page-accent);
+  }
+
+  footer {
+    border-top: 1px solid var(--page-border);
+    padding-top: 24px;
+    color: var(--page-muted);
+    font-size: 13.5px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  footer code {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    background: var(--page-surface-2);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12.5px;
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Brand Kit</div>
+    <h1>FIAP Games</h1>
+    <p class="lede">A rounded-square tile with a play-notch — mark, favicon, and wordmark for a simulated digital game storefront. Dark-first, one vivid accent, no controller clip-art.</p>
+    <div class="meta">design/brand-prompt.md → design/style-guide.md → assets below</div>
+  </header>
+
+  <section>
+    <h2>Mark</h2>
+    <p class="section-note">A rounded tile with a triangular play-notch cut from the right edge — reads as ▶ and as a single card from a library grid. One evenodd path, no separate cutout layer.</p>
+    <div class="split">
+      <div class="tile-group">
+        <div class="tile on-deep">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="72" height="72">
+            <path fill-rule="evenodd" fill="#8B5CF6" d="M22,8 H42 Q56,8 56,22 V42 Q56,56 42,56 H22 Q8,56 8,42 V22 Q8,8 22,8 Z M56,20 L34,32 L56,44 Z" />
+          </svg>
+        </div>
+        <div class="tile-label">logo-mark.svg — on #0B0712</div>
+      </div>
+      <div class="tile-group">
+        <div class="tile on-light">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="72" height="72" style="color:#0B0712">
+            <path fill-rule="evenodd" fill="currentColor" d="M22,8 H42 Q56,8 56,22 V42 Q56,56 42,56 H22 Q8,56 8,42 V22 Q8,8 22,8 Z M56,20 L34,32 L56,44 Z" />
+          </svg>
+        </div>
+        <div class="tile-label">logo-mark-mono.svg — on white, color: #0B0712</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Favicon</h2>
+    <p class="section-note">Bolder-proportioned reduction of the mark, checked here at true pixel size in a tab mockup — the actual legibility test for 16–32px.</p>
+    <div class="tab-row">
+      <div class="tab">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16">
+          <path fill-rule="evenodd" fill="#8B5CF6" d="M9,3 H23 Q29,3 29,9 V23 Q29,29 23,29 H9 Q3,29 3,23 V9 Q3,3 9,3 Z M29,9 L14,16 L29,23 Z" />
+        </svg>
+        FIAP Games
+      </div>
+      <div class="tab">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+          <path fill-rule="evenodd" fill="#8B5CF6" d="M9,3 H23 Q29,3 29,9 V23 Q29,29 23,29 H9 Q3,29 3,23 V9 Q3,3 9,3 Z M29,9 L14,16 L29,23 Z" />
+        </svg>
+        FIAP Games
+      </div>
+    </div>
+    <div class="tile-label">favicon.svg — rendered at 16px and 32px, no scaling applied</div>
+  </section>
+
+  <section>
+    <h2>Wordmark</h2>
+    <p class="section-note">"FIAP" in off-white, "Games" in the accent — one lockup, two weights of emphasis. Stacked variant for square placements (app icons, social avatars).</p>
+    <div class="split">
+      <div class="tile-group">
+        <div class="tile on-deep">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" width="240" height="52">
+            <path fill-rule="evenodd" fill="#8B5CF6" d="M22,8 H42 Q56,8 56,22 V42 Q56,56 42,56 H22 Q8,56 8,42 V22 Q8,8 22,8 Z M56,20 L34,32 L56,44 Z" />
+            <text x="72" y="42" font-family="'Space Grotesk',ui-sans-serif,system-ui,sans-serif" font-weight="700" font-size="34" letter-spacing="-0.5">
+              <tspan fill="#F5F3FF">FIAP</tspan><tspan fill="#8B5CF6" dx="10">Games</tspan>
+            </text>
+          </svg>
+        </div>
+        <div class="tile-label">wordmark.svg</div>
+      </div>
+      <div class="tile-group">
+        <div class="tile on-surface">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 104" width="110" height="82">
+            <g transform="translate(46,8) scale(0.75)">
+              <path fill-rule="evenodd" fill="#8B5CF6" d="M22,8 H42 Q56,8 56,22 V42 Q56,56 42,56 H22 Q8,56 8,42 V22 Q8,8 22,8 Z M56,20 L34,32 L56,44 Z" />
+            </g>
+            <text x="70" y="80" text-anchor="middle" font-family="'Space Grotesk',ui-sans-serif,system-ui,sans-serif" font-weight="700" font-size="20" letter-spacing="2">
+              <tspan x="70" dy="0" fill="#F5F3FF">FIAP</tspan>
+              <tspan x="70" dy="24" fill="#8B5CF6">GAMES</tspan>
+            </text>
+          </svg>
+        </div>
+        <div class="tile-label">wordmark-stacked.svg</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Color</h2>
+    <p class="section-note">Deep indigo ground, one vivid accent used sparingly, a cyan reserved for occasional highlight — never the primary mark color.</p>
+    <table class="tokens">
+      <thead>
+        <tr><th>Token</th><th>Hex</th><th>Use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="swatch" style="background:#0B0712"></span>--bg-deep</td><td class="hex">#0B0712</td><td>Primary dark surface</td></tr>
+        <tr><td><span class="swatch" style="background:#1A1030"></span>--surface</td><td class="hex">#1A1030</td><td>Card / panel on top of bg-deep</td></tr>
+        <tr><td><span class="swatch" style="background:#8B5CF6"></span>--accent</td><td class="hex">#8B5CF6</td><td>Mark fill, CTAs, links</td></tr>
+        <tr><td><span class="swatch" style="background:#22D3EE"></span>--accent-cyan</td><td class="hex">#22D3EE</td><td>Sparing secondary highlight only</td></tr>
+        <tr><td><span class="swatch" style="background:#F5F3FF"></span>--text</td><td class="hex">#F5F3FF</td><td>Text on dark surfaces</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Type</h2>
+    <div class="type-block">
+      <div class="type-row">
+        <div class="label">DISPLAY — SPACE GROTESK 700</div>
+        <div class="display-sample">FIAP Games</div>
+      </div>
+      <div class="type-row">
+        <div class="label">BODY — IBM PLEX SANS 400</div>
+        <div class="body-sample">A simulated digital storefront: browse the catalog, buy a game, watch the order move from Pending to Paid, then find it in your library.</div>
+      </div>
+      <div class="type-row">
+        <div class="label">DATA — IBM PLEX MONO 400</div>
+        <div class="mono-sample">--accent: #8B5CF6;</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>Source of truth: <code>design/style-guide.md</code>. Brief: <code>design/brand-prompt.md</code>.</div>
+    <div>No PNG/ICO raster exports exist yet — no SVG rasterizer is available in this environment. <code>favicon.svg</code> covers modern browsers directly.</div>
+  </footer>
+
+</div>

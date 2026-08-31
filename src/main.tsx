@@ -1,0 +1,20 @@
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import './theme.css';
+import './components/ui.css';
+import { App } from './App';
+import { AuthProvider } from './auth/AuthContext';
+import { LocaleProvider } from './i18n/LocaleContext';
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <BrowserRouter>
+      <LocaleProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </LocaleProvider>
+    </BrowserRouter>
+  </StrictMode>,
+);

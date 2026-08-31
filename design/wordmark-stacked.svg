@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 104" width="140" height="104" role="img" aria-label="FIAP Games wordmark, stacked">
+  <title>FIAP Games — wordmark, stacked</title>
+  <g transform="translate(46,8) scale(0.75)">
+    <path fill-rule="evenodd" fill="#8B5CF6"
+      d="M22,8 H42 Q56,8 56,22 V42 Q56,56 42,56 H22 Q8,56 8,42 V22 Q8,8 22,8 Z
+         M56,20 L34,32 L56,44 Z" />
+  </g>
+  <text x="70" y="80" text-anchor="middle"
+    font-family="'Space Grotesk','Sora',ui-sans-serif,system-ui,sans-serif"
+    font-weight="700" font-size="20" letter-spacing="2">
+    <tspan x="70" dy="0" fill="#F5F3FF">FIAP</tspan>
+    <tspan x="70" dy="24" fill="#8B5CF6">GAMES</tspan>
+  </text>
+</svg>

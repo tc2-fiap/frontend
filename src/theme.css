@@ -1,0 +1,58 @@
+/* FIAP Games brand palette — see ../design/style-guide.md (companion to
+   ../design/brand-prompt.md). Token names/values are the ones recorded
+   there; don't recolor outside this palette. */
+:root {
+  --color-bg: #0b0712;
+  --color-surface: #1a1030;
+  --color-surface-raised: #241a42;
+  --color-border: #342a56;
+  --color-text: #f5f3ff;
+  --color-text-muted: #a89fc2;
+  --color-accent: #8b5cf6;
+  --color-accent-hover: #9d72f8;
+  --color-accent-text: #16091f;
+  --color-accent-cyan: #22d3ee;
+  --color-success: #22d3ee;
+  --color-warning: #f5a524;
+  --color-danger: #f5416a;
+
+  --font-sans: 'Space Grotesk', 'Sora', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--color-accent);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+select {
+  font-family: inherit;
+}

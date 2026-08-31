@@ -1,0 +1,9 @@
+replicaCount: 1
+
+image:
+  repository: frontend
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8080

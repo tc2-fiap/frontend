@@ -1,0 +1,14 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8086:8080"
+    # No backend of its own to bring up — this only proves the built
+    # container serves correctly standalone. The browser still needs a
+    # real backend reachable at the same origin (e.g. the kind cluster's
+    # ingress on :80) for the app to actually work; for day-to-day
+    # frontend development, `npm run dev` with its Vite proxy (see
+    # vite.config.ts) is the faster loop.
