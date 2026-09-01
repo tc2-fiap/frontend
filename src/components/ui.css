@@ -23,6 +23,9 @@
 
 .navbar a,
 .navbar button.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-text-muted);
   text-decoration: none;
   font-size: 14px;
@@ -94,6 +97,16 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: 20px;
+}
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.game-card > .badge.paid:last-child {
+  margin-top: auto;
 }
 
 .grid {
@@ -401,8 +414,36 @@ pre.payload {
 
 .game-card-actions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.game-card-actions .cart-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.game-card-actions .cart-row .btn {
+  flex: 1;
+}
+
+.payment-method-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.payment-method-toggle .btn {
+  flex: 1;
+}
+
+.btn.small {
+  flex: 0 0 auto;
+  padding: 10px 12px;
+  font-size: 12px;
 }
 
 .modal-backdrop {

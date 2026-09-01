@@ -54,6 +54,13 @@ export function LibraryPage() {
             const game = games[item.gameId];
             return (
               <div key={`${item.orderId}-${item.gameId}`} className="card game-card">
+                {game?.coverImageUrl ? (
+                  <img className="game-card-cover" src={game.coverImageUrl} alt={game.title} />
+                ) : (
+                  <div className="game-card-cover-fallback" aria-hidden="true">
+                    {(game?.title ?? t('library.unknownGame')).charAt(0)}
+                  </div>
+                )}
                 <h3>{game?.title ?? t('library.unknownGame')}</h3>
                 {game && (
                   <div className="meta">

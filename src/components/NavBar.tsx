@@ -3,6 +3,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useCart } from '../cart/CartContext';
 import { useLocale } from '../i18n/LocaleContext';
 import { Logo } from './Logo';
+import { AdminEventsIcon, AdminIcon, CartIcon, CatalogIcon, LibraryIcon, LogoutIcon } from './NavIcons';
 
 export function NavBar() {
   const { user, isAdmin, logout } = useAuth();
@@ -17,9 +18,16 @@ export function NavBar() {
       </NavLink>
       {user && (
         <nav>
-          <NavLink to="/catalog">{t('nav.catalog')}</NavLink>
-          <NavLink to="/library">{t('nav.library')}</NavLink>
+          <NavLink to="/catalog">
+            <CatalogIcon />
+            {t('nav.catalog')}
+          </NavLink>
+          <NavLink to="/library">
+            <LibraryIcon />
+            {t('nav.library')}
+          </NavLink>
           <NavLink to="/cart">
+            <CartIcon />
             {t('nav.cart')}
             {cart.count > 0 && (
               <span className="badge pending" style={{ marginLeft: 4 }}>
@@ -27,8 +35,18 @@ export function NavBar() {
               </span>
             )}
           </NavLink>
-          {isAdmin && <NavLink to="/admin/orders">{t('nav.admin')}</NavLink>}
-          {isAdmin && <NavLink to="/admin/events">{t('nav.adminEvents')}</NavLink>}
+          {isAdmin && (
+            <NavLink to="/admin/orders">
+              <AdminIcon />
+              {t('nav.admin')}
+            </NavLink>
+          )}
+          {isAdmin && (
+            <NavLink to="/admin/events">
+              <AdminEventsIcon />
+              {t('nav.adminEvents')}
+            </NavLink>
+          )}
           <span className="muted">{user.email}</span>
           <button
             type="button"
@@ -50,6 +68,7 @@ export function NavBar() {
               navigate('/login');
             }}
           >
+            <LogoutIcon />
             {t('nav.logout')}
           </button>
         </nav>

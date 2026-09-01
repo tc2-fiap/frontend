@@ -45,16 +45,13 @@ export function CatalogPage() {
       });
   }, []);
 
-  function toggleCart(game: GameResponse) {
-    if (cart.items.some((item) => item.gameId === game.id)) {
-      cart.removeItem(game.id);
-    } else {
-      cart.addItem({ gameId: game.id, title: game.title, price: game.price, coverImageUrl: game.coverImageUrl });
-    }
+  function addToCart(game: GameResponse) {
+    cart.addItem({ gameId: game.id, title: game.title, price: game.price, coverImageUrl: game.coverImageUrl });
   }
 
   function buyNow(game: GameResponse) {
-    navigate('/checkout', { state: { buyNowGameId: game.id } });
+    addToCart(game);
+    navigate('/checkout');
   }
 
   if (loading) return <p className="muted">{t('catalog.loading')}</p>;
@@ -88,10 +85,28 @@ export function CatalogPage() {
                 {owned ? (
                   <span className="badge paid">{t('catalog.owned')}</span>
                 ) : (
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button type="button" className="btn secondary" onClick={() => toggleCart(game)}>
-                      {inCart ? t('catalog.inCart') : t('catalog.addToCart')}
-                    </button>
+                  <div className="game-card-actions">
+                    <div className="cart-row">
+                      <button
+                        type="button"
+                        className="btn secondary"
+                        disabled={inCart}
+                        onClick={() => addToCart(game)}
+                      >
+                        {inCart ? t('catalog.inCart') : t('catalog.addToCart')}
+                      </button>
+                      {inCart && (
+                        <button
+                          type="button"
+                          className="btn danger small"
+                          aria-label={t('cart.remove')}
+                          title={t('cart.remove')}
+                          onClick={() => cart.removeItem(game.id)}
+                        >
+                          {t('cart.remove')}
+                        </button>
+                      )}
+                    </div>
                     <button type="button" className="btn" onClick={() => buyNow(game)}>
                       {t('catalog.buyNow')}
                     </button>
