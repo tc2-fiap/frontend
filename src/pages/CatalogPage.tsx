@@ -1,32 +1,56 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { catalogApi, ordersApi } from '../api/endpoints';
 import { ApiError } from '../api/client';
 import type { GameResponse } from '../api/types';
-import { CatalogIcon } from '../components/NavIcons';
+import { FilterActions } from '../components/FilterActions';
+import { CatalogIcon, ColumnsIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
+import { PriceRangeSlider } from '../components/PriceRangeSlider';
 import { useCart } from '../cart/CartContext';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useLocale } from '../i18n/LocaleContext';
 import { LOCALE_CURRENCY } from '../i18n/locale-currency';
 import { useQuotation } from '../hooks/useQuotation';
 import { brlToUsd, formatPrice } from '../utils/currency';
 
 const PAGE_SIZE = 12;
+const GRID_COLS_KEY = 'fiap-games-catalog-grid-cols';
+const GRID_COLS_OPTIONS = [2, 3, 4, 5, 6];
 
 type OwnedFilter = 'all' | 'owned' | 'not-owned';
+
+function initialGridCols(): number {
+  try {
+    const stored = Number(localStorage.getItem(GRID_COLS_KEY));
+    if (GRID_COLS_OPTIONS.includes(stored)) return stored;
+  } catch {
+    // localStorage unavailable — fall through to the default.
+  }
+  return 4;
+}
 
 export function CatalogPage() {
   const [games, setGames] = useState<GameResponse[]>([]);
   const [ownedIds, setOwnedIds] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [catalogEmpty, setCatalogEmpty] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [genres, setGenres] = useState<string[]>([]);
+  const [platforms, setPlatforms] = useState<string[]>([]);
+  const [priceBounds, setPriceBounds] = useState({ min: 0, max: 1000 });
   const [genreFilter, setGenreFilter] = useState('all');
   const [platformFilter, setPlatformFilter] = useState('all');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search);
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(1000);
+  const debouncedMinPrice = useDebouncedValue(minPrice);
+  const debouncedMaxPrice = useDebouncedValue(maxPrice);
   const [ownedFilter, setOwnedFilter] = useState<OwnedFilter>('all');
   const [page, setPage] = useState(1);
+  const [gridCols, setGridCols] = useState(initialGridCols);
+  const [densityMenuOpen, setDensityMenuOpen] = useState(false);
   const navigate = useNavigate();
   const cart = useCart();
   const { t, locale } = useLocale();
@@ -38,13 +62,24 @@ export function CatalogPage() {
     return { amount: brlToUsd(brlPrice, rate), currency: 'USD' };
   }
 
+  // One unfiltered fetch on mount, used only to derive the genre/platform
+  // option lists and the price slider's bounds — kept static afterwards so
+  // the dropdowns and slider range don't shrink as filters narrow results.
   useEffect(() => {
     catalogApi
-      .list()
-      .then((result) => setGames(result.items))
-      .catch((err) => setError(err instanceof ApiError ? err.message : t('catalog.loadError')))
-      .finally(() => setLoading(false));
-  }, [t]);
+      .search()
+      .then((result) => {
+        setCatalogEmpty(result.items.length === 0);
+        setGenres(Array.from(new Set(result.items.map((g) => g.genre))).sort());
+        setPlatforms(Array.from(new Set(result.items.map((g) => g.platform))).sort());
+        const maxSeen = Math.ceil(result.items.reduce((max, g) => Math.max(max, g.price), 0)) || 1000;
+        setPriceBounds({ min: 0, max: maxSeen });
+        setMaxPrice(maxSeen);
+      })
+      .catch(() => {
+        /* option lists just stay empty; the filter bar still works */
+      });
+  }, []);
 
   // Used only to hide Add to Cart / Buy Now for games already owned — the
   // backend's own conflict guard on POST /api/orders remains the authority,
@@ -58,15 +93,29 @@ export function CatalogPage() {
       });
   }, []);
 
-  const genres = useMemo(() => Array.from(new Set(games.map((g) => g.genre))).sort(), [games]);
-  const platforms = useMemo(() => Array.from(new Set(games.map((g) => g.platform))).sort(), [games]);
+  // Every filter here — search/genre/platform/price — is a real backend
+  // query param. Owned/not-owned is the one exception: it needs orders-api's
+  // ownership data cross-referenced against these already-filtered results,
+  // and the hard rule against cross-schema queries means that join can only
+  // happen client-side (see notes.md). Price bounds are debounced too — a
+  // slider drag fires dozens of onChange events, not just keystrokes.
+  function fetchGames() {
+    catalogApi
+      .search({
+        title: debouncedSearch || undefined,
+        genre: genreFilter === 'all' ? undefined : genreFilter,
+        platform: platformFilter === 'all' ? undefined : platformFilter,
+        minPrice: debouncedMinPrice > priceBounds.min ? debouncedMinPrice : undefined,
+        maxPrice: debouncedMaxPrice < priceBounds.max ? debouncedMaxPrice : undefined,
+      })
+      .then((result) => setGames(result.items))
+      .catch((err) => setError(err instanceof ApiError ? err.message : t('catalog.loadError')))
+      .finally(() => setHasLoadedOnce(true));
+  }
+
+  useEffect(fetchGames, [debouncedSearch, genreFilter, platformFilter, debouncedMinPrice, debouncedMaxPrice, priceBounds, t]);
 
   const filtered = games.filter((g) => {
-    if (genreFilter !== 'all' && g.genre !== genreFilter) return false;
-    if (platformFilter !== 'all' && g.platform !== platformFilter) return false;
-    if (minPrice && g.price < Number(minPrice)) return false;
-    if (maxPrice && g.price > Number(maxPrice)) return false;
-    if (search && !g.title.toLowerCase().includes(search.toLowerCase())) return false;
     const owned = ownedIds.has(g.id);
     if (ownedFilter === 'owned' && !owned) return false;
     if (ownedFilter === 'not-owned' && owned) return false;
@@ -79,11 +128,21 @@ export function CatalogPage() {
   function clearFilters() {
     setGenreFilter('all');
     setPlatformFilter('all');
-    setMinPrice('');
-    setMaxPrice('');
     setSearch('');
+    setMinPrice(priceBounds.min);
+    setMaxPrice(priceBounds.max);
     setOwnedFilter('all');
     setPage(1);
+  }
+
+  function selectGridCols(cols: number) {
+    setGridCols(cols);
+    setDensityMenuOpen(false);
+    try {
+      localStorage.setItem(GRID_COLS_KEY, String(cols));
+    } catch {
+      // best-effort persistence only.
+    }
   }
 
   function addToCart(game: GameResponse) {
@@ -95,20 +154,52 @@ export function CatalogPage() {
     navigate('/checkout');
   }
 
-  if (loading) return <p className="muted">{t('catalog.loading')}</p>;
+  if (!hasLoadedOnce) return <p className="muted">{t('catalog.loading')}</p>;
 
   return (
     <div>
-      <h1 className="page-title">
-        <CatalogIcon size={26} />
-        {t('catalog.title')}
-      </h1>
+      <div className="page-title-row">
+        <h1 className="page-title">
+          <CatalogIcon size={26} />
+          {t('catalog.title')}
+        </h1>
+        <div className="page-actions">
+          <div className="grid-density-toggle">
+            <button
+              type="button"
+              className="icon-btn"
+              aria-expanded={densityMenuOpen}
+              aria-label={t('catalog.gridDensityLabel')}
+              onClick={() => setDensityMenuOpen((open) => !open)}
+            >
+              <ColumnsIcon size={16} />
+              {t('catalog.gridDensityLabel')}
+            </button>
+            {densityMenuOpen && (
+              <div className="nav-dropdown card">
+                {GRID_COLS_OPTIONS.map((cols) => (
+                  <button
+                    key={cols}
+                    type="button"
+                    className={cols === gridCols ? 'active' : ''}
+                    aria-pressed={cols === gridCols}
+                    onClick={() => selectGridCols(cols)}
+                  >
+                    {t('catalog.gridDensity', { cols })}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <FilterActions onClear={clearFilters} onRefresh={fetchGames} />
+        </div>
+      </div>
       {error && <p className="error">{error}</p>}
-      {games.length === 0 ? (
+      {catalogEmpty ? (
         <p className="empty-state">{t('catalog.empty')}</p>
       ) : (
-        <div className="catalog-layout">
-          <aside className="catalog-filters card">
+        <>
+          <div className="card filter-bar">
             <div className="field">
               <label>{t('catalog.filterSearch')}</label>
               <input
@@ -155,25 +246,18 @@ export function CatalogPage() {
               </select>
             </div>
             <div className="field">
-              <label>{t('catalog.filterMinPrice')}</label>
-              <input
-                type="number"
-                min="0"
-                value={minPrice}
-                onChange={(e) => {
-                  setMinPrice(e.target.value);
+              <label>{t('catalog.filterPriceRange')}</label>
+              <PriceRangeSlider
+                min={priceBounds.min}
+                max={priceBounds.max}
+                valueMin={minPrice}
+                valueMax={maxPrice}
+                onChangeMin={(value) => {
+                  setMinPrice(value);
                   setPage(1);
                 }}
-              />
-            </div>
-            <div className="field">
-              <label>{t('catalog.filterMaxPrice')}</label>
-              <input
-                type="number"
-                min="0"
-                value={maxPrice}
-                onChange={(e) => {
-                  setMaxPrice(e.target.value);
+                onChangeMax={(value) => {
+                  setMaxPrice(value);
                   setPage(1);
                 }}
               />
@@ -192,74 +276,69 @@ export function CatalogPage() {
                 <option value="not-owned">{t('catalog.ownedNotOwned')}</option>
               </select>
             </div>
-            <button type="button" className="btn secondary" onClick={clearFilters}>
-              {t('catalog.clearFilters')}
-            </button>
-          </aside>
+          </div>
 
-          <div className="catalog-results">
-            {filtered.length === 0 ? (
-              <p className="empty-state">{t('catalog.noResults')}</p>
-            ) : (
-              <>
-                <div className="grid">
-                  {paged.map((game) => {
-                    const { amount, currency } = displayPrice(game.price);
-                    const owned = ownedIds.has(game.id);
-                    const inCart = cart.items.some((item) => item.gameId === game.id);
-                    return (
-                      <div key={game.id} className="card game-card">
-                        {game.coverImageUrl ? (
-                          <img className="game-card-cover" src={game.coverImageUrl} alt={game.title} />
-                        ) : (
-                          <div className="game-card-cover-fallback" aria-hidden="true">
-                            {game.title.charAt(0)}
-                          </div>
-                        )}
-                        <h3>{game.title}</h3>
-                        <div className="meta">
-                          {game.genre} · {game.platform}
+          {filtered.length === 0 ? (
+            <p className="empty-state">{t('catalog.noResults')}</p>
+          ) : (
+            <>
+              <div className="grid" style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}>
+                {paged.map((game) => {
+                  const { amount, currency } = displayPrice(game.price);
+                  const owned = ownedIds.has(game.id);
+                  const inCart = cart.items.some((item) => item.gameId === game.id);
+                  return (
+                    <div key={game.id} className="card game-card">
+                      {game.coverImageUrl ? (
+                        <img className="game-card-cover" src={game.coverImageUrl} alt={game.title} />
+                      ) : (
+                        <div className="game-card-cover-fallback" aria-hidden="true">
+                          {game.title.charAt(0)}
                         </div>
-                        <div className="price">{formatPrice(amount, currency)}</div>
-                        {owned ? (
-                          <span className="badge paid">{t('catalog.owned')}</span>
-                        ) : (
-                          <div className="game-card-actions">
-                            <div className="cart-row">
+                      )}
+                      <h3>{game.title}</h3>
+                      <div className="meta">
+                        {game.genre} · {game.platform}
+                      </div>
+                      <div className="price">{formatPrice(amount, currency)}</div>
+                      {owned ? (
+                        <span className="badge paid">{t('catalog.owned')}</span>
+                      ) : (
+                        <div className="game-card-actions">
+                          <div className="cart-row">
+                            <button
+                              type="button"
+                              className="btn secondary"
+                              disabled={inCart}
+                              onClick={() => addToCart(game)}
+                            >
+                              {inCart ? t('catalog.inCart') : t('catalog.addToCart')}
+                            </button>
+                            {inCart && (
                               <button
                                 type="button"
-                                className="btn secondary"
-                                disabled={inCart}
-                                onClick={() => addToCart(game)}
+                                className="btn danger small"
+                                aria-label={t('cart.remove')}
+                                title={t('cart.remove')}
+                                onClick={() => cart.removeItem(game.id)}
                               >
-                                {inCart ? t('catalog.inCart') : t('catalog.addToCart')}
+                                {t('cart.remove')}
                               </button>
-                              {inCart && (
-                                <button
-                                  type="button"
-                                  className="btn danger small"
-                                  aria-label={t('cart.remove')}
-                                  title={t('cart.remove')}
-                                  onClick={() => cart.removeItem(game.id)}
-                                >
-                                  {t('cart.remove')}
-                                </button>
-                              )}
-                            </div>
-                            <button type="button" className="btn" onClick={() => buyNow(game)}>
-                              {t('catalog.buyNow')}
-                            </button>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
-              </>
-            )}
-          </div>
-        </div>
+                          <button type="button" className="btn" onClick={() => buyNow(game)}>
+                            {t('catalog.buyNow')}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+            </>
+          )}
+        </>
       )}
     </div>
   );

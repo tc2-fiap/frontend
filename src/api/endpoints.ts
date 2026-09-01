@@ -32,10 +32,13 @@ export const usersApi = {
   loginWithGoogle: (idToken: string) => api.post<LoginResponse>('/api/users/login/google', { idToken }),
   me: () => api.get<{ id: string; email: string }>('/api/users/me'),
   adminAllUserEvents: () => api.get<PagedResult<UserEventResponse>>('/api/users/admin/events?pageSize=100'),
+  adminSearchByName: (name: string) =>
+    api.get<PagedResult<UserResponse>>(`/api/users/admin/search${toQueryString({ name, pageSize: 100 })}`),
 };
 
 export const catalogApi = {
-  list: () => api.get<PagedResult<GameResponse>>('/api/games?pageSize=100'),
+  search: (params?: { title?: string; genre?: string; platform?: string; minPrice?: number; maxPrice?: number }) =>
+    api.get<PagedResult<GameResponse>>(`/api/games${toQueryString({ pageSize: 100, ...params })}`),
   get: (id: string) => api.get<GameResponse>(`/api/games/${id}`),
   quotation: () => api.get<QuotationResponse>('/api/quotations/usd-brl'),
 };
@@ -45,8 +48,28 @@ export const ordersApi = {
   get: (id: string) => api.get<OrderResponse>(`/api/orders/${id}`),
   library: () => api.get<PagedResult<LibraryItemResponse>>('/api/library?pageSize=100'),
   removeFromLibrary: (gameId: string) => api.delete<void>(`/api/library/${gameId}`),
-  adminAllOrders: (params?: { page?: number; pageSize?: number; status?: string; from?: string; to?: string }) =>
-    api.get<PagedResult<OrderResponse>>(`/api/orders/admin${toQueryString({ pageSize: 10, ...params })}`),
+  adminAllOrders: (params?: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+    from?: string;
+    to?: string;
+    orderId?: string;
+    userIds?: string[];
+    gameIds?: string[];
+    minPrice?: number;
+    maxPrice?: number;
+  }) => {
+    const { userIds, gameIds, ...rest } = params ?? {};
+    return api.get<PagedResult<OrderResponse>>(
+      `/api/orders/admin${toQueryString({
+        pageSize: 10,
+        ...rest,
+        userIds: userIds?.join(','),
+        gameIds: gameIds?.join(','),
+      })}`,
+    );
+  },
   adminOrderEvents: (orderId: string) => api.get<OrderEventResponse[]>(`/api/orders/${orderId}/events`),
   adminAllOrderEvents: () => api.get<PagedResult<OrderEventResponse>>('/api/orders/admin/events?pageSize=100'),
 };

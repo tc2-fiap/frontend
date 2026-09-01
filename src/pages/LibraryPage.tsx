@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { catalogApi, ordersApi } from '../api/endpoints';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { FilterActions } from '../components/FilterActions';
 import { LibraryIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import type { GameResponse, LibraryItemResponse } from '../api/types';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useLocale } from '../i18n/LocaleContext';
 import { formatPrice } from '../utils/currency';
 
@@ -19,17 +21,27 @@ export function LibraryPage() {
   const [genreFilter, setGenreFilter] = useState('all');
   const [platformFilter, setPlatformFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search);
   const [page, setPage] = useState(1);
   const { t } = useLocale();
 
-  useEffect(() => {
-    Promise.all([ordersApi.library(), catalogApi.list()])
+  function fetchLibrary() {
+    Promise.all([ordersApi.library(), catalogApi.search()])
       .then(([libraryResult, catalogResult]) => {
         setItems(libraryResult.items);
         setGames(Object.fromEntries(catalogResult.items.map((g) => [g.id, g])));
       })
       .finally(() => setLoading(false));
-  }, []);
+  }
+
+  useEffect(fetchLibrary, []);
+
+  function clearFilters() {
+    setGenreFilter('all');
+    setPlatformFilter('all');
+    setSearch('');
+    setPage(1);
+  }
 
   async function handleConfirmRemove() {
     if (!confirmGameId) return;
@@ -59,7 +71,7 @@ export function LibraryPage() {
     const game = games[item.gameId];
     if (genreFilter !== 'all' && game?.genre !== genreFilter) return false;
     if (platformFilter !== 'all' && game?.platform !== platformFilter) return false;
-    if (search && !(game?.title ?? '').toLowerCase().includes(search.toLowerCase())) return false;
+    if (debouncedSearch && !(game?.title ?? '').toLowerCase().includes(debouncedSearch.toLowerCase())) return false;
     return true;
   });
 
@@ -72,10 +84,13 @@ export function LibraryPage() {
 
   return (
     <div>
-      <h1 className="page-title">
-        <LibraryIcon size={26} />
-        {t('library.title')}
-      </h1>
+      <div className="page-title-row">
+        <h1 className="page-title">
+          <LibraryIcon size={26} />
+          {t('library.title')}
+        </h1>
+        <FilterActions onClear={clearFilters} onRefresh={fetchLibrary} />
+      </div>
       {removeError && <p className="error">{removeError}</p>}
       {items.length === 0 ? (
         <p className="empty-state">{t('library.empty')}</p>

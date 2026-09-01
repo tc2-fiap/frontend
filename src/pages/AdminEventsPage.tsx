@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { notificationsApi, ordersApi, paymentsApi, usersApi } from '../api/endpoints';
 import type { NotificationResponse, OrderEventResponse, PaymentResponse, UserEventResponse } from '../api/types';
+import { FilterActions } from '../components/FilterActions';
 import { AdminEventsIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import { useLocale } from '../i18n/LocaleContext';
@@ -35,7 +36,7 @@ export function AdminEventsPage() {
   const [page, setPage] = useState(1);
   const { t } = useLocale();
 
-  useEffect(() => {
+  function fetchEvents() {
     Promise.allSettled([
       usersApi.adminAllUserEvents(),
       ordersApi.adminAllOrderEvents(),
@@ -97,7 +98,18 @@ export function AdminEventsPage() {
       setRows(unified);
       setLoading(false);
     });
-  }, []);
+  }
+
+  useEffect(fetchEvents, []);
+
+  function clearFilters() {
+    setSourceFilter('all');
+    setKindFilter('all');
+    setLabelFilter('all');
+    setFrom('');
+    setTo('');
+    setPage(1);
+  }
 
   const labels = useMemo(() => Array.from(new Set(rows.map((r) => r.label))).sort(), [rows]);
 
@@ -117,10 +129,13 @@ export function AdminEventsPage() {
 
   return (
     <div>
-      <h1 className="page-title">
-        <AdminEventsIcon size={26} />
-        {t('adminEvents.title')}
-      </h1>
+      <div className="page-title-row">
+        <h1 className="page-title">
+          <AdminEventsIcon size={26} />
+          {t('adminEvents.title')}
+        </h1>
+        <FilterActions onClear={clearFilters} onRefresh={fetchEvents} />
+      </div>
       <p className="muted">{t('adminEvents.subtitle')}</p>
 
       <div className="card filter-bar">

@@ -20,6 +20,20 @@
   --radius: 10px;
 }
 
+/* Light theme — same accent/success/warning/danger hues as the dark
+   palette (style-guide.md: "don't recolor the mark to anything outside
+   the palette above"), only bg/surface/border/text swap for a light
+   ground. Applied via [data-theme] rather than prefers-color-scheme
+   since this is an explicit user toggle, not OS-driven. */
+:root[data-theme='light'] {
+  --color-bg: #f7f5fb;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f0ecf9;
+  --color-border: #ddd6f3;
+  --color-text: #1a1030;
+  --color-text-muted: #6b6280;
+}
+
 * {
   box-sizing: border-box;
 }
