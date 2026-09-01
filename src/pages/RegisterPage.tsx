@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { usersApi } from '../api/endpoints';
 import { ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { RegisterIcon } from '../components/NavIcons';
 import { useLocale } from '../i18n/LocaleContext';
 
 export function RegisterPage() {
@@ -33,7 +34,10 @@ export function RegisterPage() {
 
   return (
     <div className="auth-shell">
-      <h1>{t('register.title')}</h1>
+      <h1 className="page-title">
+        <RegisterIcon size={26} />
+        {t('register.title')}
+      </h1>
       {error && <p className="error">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="field">

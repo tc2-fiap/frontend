@@ -5,6 +5,7 @@ import { ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { useLocale } from '../i18n/LocaleContext';
 import { GoogleSignInButton } from '../components/GoogleSignInButton';
+import { LoginIcon } from '../components/NavIcons';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -51,7 +52,10 @@ export function LoginPage() {
 
   return (
     <div className="auth-shell">
-      <h1>{t('login.title')}</h1>
+      <h1 className="page-title">
+        <LoginIcon size={26} />
+        {t('login.title')}
+      </h1>
       {error && <p className="error">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="field">

@@ -4,6 +4,7 @@ import { ordersApi } from '../api/endpoints';
 import { ApiError } from '../api/client';
 import type { OrderResponse } from '../api/types';
 import { type CartItem, useCart } from '../cart/CartContext';
+import { CheckoutIcon } from '../components/NavIcons';
 import { PaymentStatusCard, type PaymentMethod } from '../components/PaymentStatusCard';
 import { useOrderPaymentStatus } from '../hooks/useOrderPaymentStatus';
 import { useLocale } from '../i18n/LocaleContext';
@@ -68,7 +69,10 @@ export function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div>
-        <h1>{t('checkout.title')}</h1>
+        <h1 className="page-title">
+        <CheckoutIcon size={26} />
+        {t('checkout.title')}
+      </h1>
         {error && <p className="error">{error}</p>}
         <p className="empty-state">{t('checkout.emptyState')}</p>
         <button type="button" className="btn secondary" onClick={() => navigate('/catalog')}>
@@ -83,7 +87,10 @@ export function CheckoutPage() {
 
   return (
     <div style={{ maxWidth: 900 }}>
-      <h1>{t('checkout.title')}</h1>
+      <h1 className="page-title">
+        <CheckoutIcon size={26} />
+        {t('checkout.title')}
+      </h1>
       {error && <p className="error">{error}</p>}
       <div className="order-status-columns">
         <div>
@@ -195,7 +202,10 @@ function CheckoutPaymentPhase({
 
   return (
     <div style={{ maxWidth: 900 }}>
-      <h1>{t('checkout.title')}</h1>
+      <h1 className="page-title">
+        <CheckoutIcon size={26} />
+        {t('checkout.title')}
+      </h1>
       <div className="order-status-columns">
         <div>
           <h2 className="section-title">{t('orderStatus.itemsTitle')}</h2>

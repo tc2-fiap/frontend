@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { notificationsApi, ordersApi, paymentsApi } from '../api/endpoints';
 import type { NotificationResponse, OrderEventResponse, OrderResponse, PaymentResponse } from '../api/types';
+import { OrderIcon } from '../components/NavIcons';
 import { useLocale } from '../i18n/LocaleContext';
 import { formatPrice } from '../utils/currency';
 import { formatJson } from '../utils/formatJson';
@@ -39,7 +40,10 @@ export function AdminOrderDetailPage() {
 
   return (
     <div>
-      <h1>{t('adminOrderDetail.orderPrefix', { id: orderId?.slice(0, 8) ?? '' })}</h1>
+      <h1 className="page-title">
+        <OrderIcon size={26} />
+        {t('adminOrderDetail.orderPrefix', { id: orderId?.slice(0, 8) ?? '' })}
+      </h1>
 
       {order && (
         <div className="card">

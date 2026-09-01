@@ -481,3 +481,71 @@ pre.payload {
   justify-content: flex-end;
   gap: 12px;
 }
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-title svg {
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.pagination-page {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.catalog-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.catalog-filters {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.catalog-filters .field {
+  margin-bottom: 0;
+}
+
+.catalog-results {
+  flex: 1;
+  min-width: 0;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.filter-bar .field {
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .catalog-layout {
+    flex-direction: column;
+  }
+
+  .catalog-filters {
+    width: 100%;
+  }
+}

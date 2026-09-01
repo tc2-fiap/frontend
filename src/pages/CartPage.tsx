@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { CartIcon } from '../components/NavIcons';
 import { useCart } from '../cart/CartContext';
 import { useLocale } from '../i18n/LocaleContext';
 import { LOCALE_CURRENCY } from '../i18n/locale-currency';
@@ -20,7 +21,10 @@ export function CartPage() {
   if (cart.items.length === 0) {
     return (
       <div>
-        <h1>{t('cart.title')}</h1>
+        <h1 className="page-title">
+          <CartIcon size={26} />
+          {t('cart.title')}
+        </h1>
         <p className="empty-state">{t('cart.empty')}</p>
         <Link to="/catalog" className="btn secondary">
           {t('cart.backToCatalog')}

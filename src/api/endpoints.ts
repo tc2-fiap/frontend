@@ -15,6 +15,15 @@ import type {
   UserResponse,
 } from './types';
 
+function toQueryString(params: Record<string, string | number | undefined>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== '') search.set(key, String(value));
+  }
+  const query = search.toString();
+  return query ? `?${query}` : '';
+}
+
 export const usersApi = {
   config: () => api.get<AuthConfig>('/api/users/config'),
   register: (name: string, email: string, password: string) =>
@@ -36,7 +45,8 @@ export const ordersApi = {
   get: (id: string) => api.get<OrderResponse>(`/api/orders/${id}`),
   library: () => api.get<PagedResult<LibraryItemResponse>>('/api/library?pageSize=100'),
   removeFromLibrary: (gameId: string) => api.delete<void>(`/api/library/${gameId}`),
-  adminAllOrders: () => api.get<PagedResult<OrderResponse>>('/api/orders/admin?pageSize=100'),
+  adminAllOrders: (params?: { page?: number; pageSize?: number; status?: string; from?: string; to?: string }) =>
+    api.get<PagedResult<OrderResponse>>(`/api/orders/admin${toQueryString({ pageSize: 10, ...params })}`),
   adminOrderEvents: (orderId: string) => api.get<OrderEventResponse[]>(`/api/orders/${orderId}/events`),
   adminAllOrderEvents: () => api.get<PagedResult<OrderEventResponse>>('/api/orders/admin/events?pageSize=100'),
 };
