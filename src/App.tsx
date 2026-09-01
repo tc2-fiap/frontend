@@ -5,6 +5,8 @@ import { useAuth } from './auth/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { CatalogPage } from './pages/CatalogPage';
+import { CartPage } from './pages/CartPage';
+import { CheckoutPage } from './pages/CheckoutPage';
 import { LibraryPage } from './pages/LibraryPage';
 import { OrderStatusPage } from './pages/OrderStatusPage';
 import { AdminOrdersPage } from './pages/AdminOrdersPage';
@@ -24,6 +26,8 @@ export function App() {
 
           <Route element={<RequireAuth />}>
             <Route path="/catalog" element={<CatalogPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/orders/:orderId" element={<OrderStatusPage />} />
 

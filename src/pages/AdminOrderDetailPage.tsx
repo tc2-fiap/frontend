@@ -45,8 +45,16 @@ export function AdminOrderDetailPage() {
         <div className="card">
           <p>
             {t('adminOrderDetail.status')} <span className={`badge ${order.status.toLowerCase()}`}>{t(`status.${order.status}`)}</span> ·{' '}
-            {t('adminOrderDetail.price')} {formatPrice(order.price)} · {t('adminOrderDetail.user')} {order.userId}
+            {t('adminOrderDetail.price')} {formatPrice(order.totalPrice)} · {t('adminOrderDetail.user')} {order.userId}
           </p>
+          <p className="muted">{t('adminOrderDetail.itemsTitle')}</p>
+          <ul>
+            {order.items.map((item) => (
+              <li key={item.gameId}>
+                {item.gameId.slice(0, 8)} — {formatPrice(item.price)}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

@@ -1,10 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { useCart } from '../cart/CartContext';
 import { useLocale } from '../i18n/LocaleContext';
 import { Logo } from './Logo';
 
 export function NavBar() {
   const { user, isAdmin, logout } = useAuth();
+  const cart = useCart();
   const { locale, setLocale, t } = useLocale();
   const navigate = useNavigate();
 
@@ -13,18 +15,30 @@ export function NavBar() {
       <NavLink to="/" style={{ textDecoration: 'none' }}>
         <Logo />
       </NavLink>
-      <div className="locale-toggle">
-        <button type="button" className={locale === 'en' ? 'link active' : 'link'} onClick={() => setLocale('en')}>
-          EN
-        </button>
-        <button type="button" className={locale === 'pt' ? 'link active' : 'link'} onClick={() => setLocale('pt')}>
-          PT
-        </button>
-      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={locale === 'pt'}
+        aria-label="EN / PT"
+        className="locale-toggle"
+        onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
+      >
+        <span className={locale === 'en' ? 'locale-toggle-option active' : 'locale-toggle-option'}>EN</span>
+        <span className={locale === 'pt' ? 'locale-toggle-option active' : 'locale-toggle-option'}>PT</span>
+        <span className="locale-toggle-thumb" />
+      </button>
       {user && (
         <nav>
           <NavLink to="/catalog">{t('nav.catalog')}</NavLink>
           <NavLink to="/library">{t('nav.library')}</NavLink>
+          <NavLink to="/cart">
+            {t('nav.cart')}
+            {cart.count > 0 && (
+              <span className="badge pending" style={{ marginLeft: 4 }}>
+                {cart.count}
+              </span>
+            )}
+          </NavLink>
           {isAdmin && <NavLink to="/admin/orders">{t('nav.admin')}</NavLink>}
           {isAdmin && <NavLink to="/admin/events">{t('nav.adminEvents')}</NavLink>}
           <span className="muted">{user.email}</span>

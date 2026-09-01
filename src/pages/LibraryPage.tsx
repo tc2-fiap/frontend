@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { catalogApi, ordersApi } from '../api/endpoints';
-import type { GameResponse, OrderResponse } from '../api/types';
+import type { GameResponse, LibraryItemResponse } from '../api/types';
 import { useLocale } from '../i18n/LocaleContext';
 import { formatPrice } from '../utils/currency';
 
 export function LibraryPage() {
-  const [orders, setOrders] = useState<OrderResponse[]>([]);
+  const [items, setItems] = useState<LibraryItemResponse[]>([]);
   const [games, setGames] = useState<Record<string, GameResponse>>({});
   const [loading, setLoading] = useState(true);
   const { t } = useLocale();
@@ -13,7 +13,7 @@ export function LibraryPage() {
   useEffect(() => {
     Promise.all([ordersApi.library(), catalogApi.list()])
       .then(([libraryResult, catalogResult]) => {
-        setOrders(libraryResult.items);
+        setItems(libraryResult.items);
         setGames(Object.fromEntries(catalogResult.items.map((g) => [g.id, g])));
       })
       .finally(() => setLoading(false));
@@ -24,21 +24,21 @@ export function LibraryPage() {
   return (
     <div>
       <h1>{t('library.title')}</h1>
-      {orders.length === 0 ? (
+      {items.length === 0 ? (
         <p className="empty-state">{t('library.empty')}</p>
       ) : (
         <div className="grid">
-          {orders.map((order) => {
-            const game = games[order.gameId];
+          {items.map((item) => {
+            const game = games[item.gameId];
             return (
-              <div key={order.id} className="card game-card">
+              <div key={`${item.orderId}-${item.gameId}`} className="card game-card">
                 <h3>{game?.title ?? t('library.unknownGame')}</h3>
                 {game && (
                   <div className="meta">
                     {game.genre} · {game.platform}
                   </div>
                 )}
-                <div className="price">{formatPrice(order.price)}</div>
+                {game && <div className="price">{formatPrice(game.price)}</div>}
                 <span className="badge paid">{t('library.owned')}</span>
               </div>
             );

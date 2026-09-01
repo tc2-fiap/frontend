@@ -32,6 +32,7 @@ export function AdminOrdersPage() {
             <tr>
               <th>{t('adminOrders.colOrder')}</th>
               <th>{t('adminOrders.colUser')}</th>
+              <th>{t('adminOrders.colItems')}</th>
               <th>{t('adminOrders.colPrice')}</th>
               <th>{t('adminOrders.colStatus')}</th>
               <th>{t('adminOrders.colCreated')}</th>
@@ -42,7 +43,8 @@ export function AdminOrdersPage() {
               <tr key={order.id} className="clickable" onClick={() => navigate(`/admin/orders/${order.id}`)}>
                 <td>{order.id.slice(0, 8)}</td>
                 <td>{order.userId.slice(0, 8)}</td>
-                <td>{formatPrice(order.price)}</td>
+                <td>{order.items.length}</td>
+                <td>{formatPrice(order.totalPrice)}</td>
                 <td>
                   <span className={`badge ${order.status.toLowerCase()}`}>{t(`status.${order.status}`)}</span>
                 </td>

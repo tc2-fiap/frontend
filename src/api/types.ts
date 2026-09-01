@@ -28,13 +28,24 @@ export interface GameResponse {
   createdAtUtc: string;
 }
 
+export interface OrderItemResponse {
+  gameId: string;
+  price: number;
+}
+
 export interface OrderResponse {
   id: string;
   userId: string;
-  gameId: string;
-  price: number;
+  items: OrderItemResponse[];
+  totalPrice: number;
   status: 'Pending' | 'Paid' | 'Failed';
   createdAtUtc: string;
+}
+
+export interface LibraryItemResponse {
+  gameId: string;
+  orderId: string;
+  purchasedAtUtc: string;
 }
 
 export interface OrderEventResponse {
@@ -55,7 +66,6 @@ export interface PaymentResponse {
   id: string;
   orderId: string;
   userId: string;
-  gameId: string;
   price: number;
   status: 'Approved' | 'Rejected';
   gateway: string;

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { catalogApi, ordersApi } from '../api/endpoints';
 import { ApiError } from '../api/client';
 import type { GameResponse } from '../api/types';
+import { useCart } from '../cart/CartContext';
 import { useLocale } from '../i18n/LocaleContext';
 import { LOCALE_CURRENCY } from '../i18n/locale-currency';
 import { useQuotation } from '../hooks/useQuotation';
@@ -10,10 +11,11 @@ import { brlToUsd, formatPrice } from '../utils/currency';
 
 export function CatalogPage() {
   const [games, setGames] = useState<GameResponse[]>([]);
+  const [ownedIds, setOwnedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [buyingId, setBuyingId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const cart = useCart();
   const { t, locale } = useLocale();
   const rate = useQuotation();
   const displayCurrency = LOCALE_CURRENCY[locale];
@@ -31,16 +33,28 @@ export function CatalogPage() {
       .finally(() => setLoading(false));
   }, [t]);
 
-  async function handleBuy(gameId: string) {
-    setBuyingId(gameId);
-    setError(null);
-    try {
-      const order = await ordersApi.create(gameId);
-      navigate(`/orders/${order.id}`);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : t('catalog.orderError'));
-      setBuyingId(null);
+  // Used only to hide Add to Cart / Buy Now for games already owned — the
+  // backend's own conflict guard on POST /api/orders remains the authority,
+  // this just avoids surfacing that 409 in the common case.
+  useEffect(() => {
+    ordersApi
+      .library()
+      .then((result) => setOwnedIds(new Set(result.items.map((item) => item.gameId))))
+      .catch(() => {
+        /* if this fails, worst case a purchase attempt hits the backend's own conflict guard */
+      });
+  }, []);
+
+  function toggleCart(game: GameResponse) {
+    if (cart.items.some((item) => item.gameId === game.id)) {
+      cart.removeItem(game.id);
+    } else {
+      cart.addItem({ gameId: game.id, title: game.title, price: game.price, coverImageUrl: game.coverImageUrl });
     }
+  }
+
+  function buyNow(game: GameResponse) {
+    navigate('/checkout', { state: { buyNowGameId: game.id } });
   }
 
   if (loading) return <p className="muted">{t('catalog.loading')}</p>;
@@ -55,6 +69,8 @@ export function CatalogPage() {
         <div className="grid">
           {games.map((game) => {
             const { amount, currency } = displayPrice(game.price);
+            const owned = ownedIds.has(game.id);
+            const inCart = cart.items.some((item) => item.gameId === game.id);
             return (
               <div key={game.id} className="card game-card">
                 {game.coverImageUrl ? (
@@ -69,9 +85,18 @@ export function CatalogPage() {
                   {game.genre} · {game.platform}
                 </div>
                 <div className="price">{formatPrice(amount, currency)}</div>
-                <button type="button" className="btn" disabled={buyingId === game.id} onClick={() => handleBuy(game.id)}>
-                  {buyingId === game.id ? t('catalog.placingOrder') : t('catalog.buy')}
-                </button>
+                {owned ? (
+                  <span className="badge paid">{t('catalog.owned')}</span>
+                ) : (
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button type="button" className="btn secondary" onClick={() => toggleCart(game)}>
+                      {inCart ? t('catalog.inCart') : t('catalog.addToCart')}
+                    </button>
+                    <button type="button" className="btn" onClick={() => buyNow(game)}>
+                      {t('catalog.buyNow')}
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
