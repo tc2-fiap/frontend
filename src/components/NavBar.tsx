@@ -15,18 +15,6 @@ export function NavBar() {
       <NavLink to="/" style={{ textDecoration: 'none' }}>
         <Logo />
       </NavLink>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={locale === 'pt'}
-        aria-label="EN / PT"
-        className="locale-toggle"
-        onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
-      >
-        <span className={locale === 'en' ? 'locale-toggle-option active' : 'locale-toggle-option'}>EN</span>
-        <span className={locale === 'pt' ? 'locale-toggle-option active' : 'locale-toggle-option'}>PT</span>
-        <span className="locale-toggle-thumb" />
-      </button>
       {user && (
         <nav>
           <NavLink to="/catalog">{t('nav.catalog')}</NavLink>
@@ -44,6 +32,18 @@ export function NavBar() {
           <span className="muted">{user.email}</span>
           <button
             type="button"
+            role="switch"
+            aria-checked={locale === 'pt'}
+            aria-label="EN / PT"
+            className="locale-toggle"
+            onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
+          >
+            <span className={locale === 'en' ? 'locale-toggle-option active' : 'locale-toggle-option'}>EN</span>
+            <span className={locale === 'pt' ? 'locale-toggle-option active' : 'locale-toggle-option'}>PT</span>
+            <span className="locale-toggle-thumb" />
+          </button>
+          <button
+            type="button"
             className="link"
             onClick={() => {
               logout();
@@ -53,6 +53,20 @@ export function NavBar() {
             {t('nav.logout')}
           </button>
         </nav>
+      )}
+      {!user && (
+        <button
+          type="button"
+          role="switch"
+          aria-checked={locale === 'pt'}
+          aria-label="EN / PT"
+          className="locale-toggle"
+          onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
+        >
+          <span className={locale === 'en' ? 'locale-toggle-option active' : 'locale-toggle-option'}>EN</span>
+          <span className={locale === 'pt' ? 'locale-toggle-option active' : 'locale-toggle-option'}>PT</span>
+          <span className="locale-toggle-thumb" />
+        </button>
       )}
     </header>
   );
