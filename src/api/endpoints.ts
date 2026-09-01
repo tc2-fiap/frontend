@@ -35,6 +35,7 @@ export const ordersApi = {
   create: (gameIds: string[]) => api.post<OrderResponse>('/api/orders', { gameIds }),
   get: (id: string) => api.get<OrderResponse>(`/api/orders/${id}`),
   library: () => api.get<PagedResult<LibraryItemResponse>>('/api/library?pageSize=100'),
+  removeFromLibrary: (gameId: string) => api.delete<void>(`/api/library/${gameId}`),
   adminAllOrders: () => api.get<PagedResult<OrderResponse>>('/api/orders/admin?pageSize=100'),
   adminOrderEvents: (orderId: string) => api.get<OrderEventResponse[]>(`/api/orders/${orderId}/events`),
   adminAllOrderEvents: () => api.get<PagedResult<OrderEventResponse>>('/api/orders/admin/events?pageSize=100'),
