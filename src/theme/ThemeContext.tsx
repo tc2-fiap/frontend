@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 
 const STORAGE_KEY = 'fiap-games-theme';
 
-export type Theme = 'dark' | 'light';
+export type Theme = 'dark' | 'light' | 'mixed';
 
 interface ThemeContextValue {
   theme: Theme;
@@ -14,7 +14,7 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 function initialTheme(): Theme {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'dark' || stored === 'light') return stored;
+    if (stored === 'dark' || stored === 'light' || stored === 'mixed') return stored;
   } catch {
     // localStorage unavailable — fall through to the default.
   }

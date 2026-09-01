@@ -11,6 +11,7 @@ import {
   CartIcon,
   CatalogIcon,
   CloseIcon,
+  ContrastIcon,
   HamburgerIcon,
   LibraryIcon,
   LogoutIcon,
@@ -18,6 +19,13 @@ import {
   ProfileIcon,
   SunIcon,
 } from './NavIcons';
+import type { Theme } from '../theme/ThemeContext';
+
+const THEME_OPTIONS: { value: Theme; icon: typeof MoonIcon }[] = [
+  { value: 'dark', icon: MoonIcon },
+  { value: 'mixed', icon: ContrastIcon },
+  { value: 'light', icon: SunIcon },
+];
 
 export function NavBar() {
   const { user, isAdmin, logout } = useAuth();
@@ -29,11 +37,8 @@ export function NavBar() {
 
   return (
     <header className="navbar">
-      <NavLink to="/" style={{ textDecoration: 'none' }}>
-        <Logo />
-      </NavLink>
-      {user && (
-        <nav>
+      <div className="navbar-brand">
+        {user && (
           <button
             type="button"
             className="nav-hamburger"
@@ -43,30 +48,13 @@ export function NavBar() {
           >
             {menuOpen ? <CloseIcon size={18} /> : <HamburgerIcon size={18} />}
           </button>
-          {menuOpen && (
-            <div className="nav-dropdown card">
-              <NavLink to="/catalog" onClick={() => setMenuOpen(false)}>
-                <CatalogIcon />
-                {t('nav.catalog')}
-              </NavLink>
-              <NavLink to="/library" onClick={() => setMenuOpen(false)}>
-                <LibraryIcon />
-                {t('nav.library')}
-              </NavLink>
-              {isAdmin && (
-                <NavLink to="/admin/orders" onClick={() => setMenuOpen(false)}>
-                  <AdminIcon />
-                  {t('nav.admin')}
-                </NavLink>
-              )}
-              {isAdmin && (
-                <NavLink to="/admin/events" onClick={() => setMenuOpen(false)}>
-                  <AdminEventsIcon />
-                  {t('nav.adminEvents')}
-                </NavLink>
-              )}
-            </div>
-          )}
+        )}
+        <NavLink to="/" style={{ textDecoration: 'none' }}>
+          <Logo />
+        </NavLink>
+      </div>
+      {user && (
+        <nav>
           <NavLink to="/cart">
             <CartIcon />
             {t('nav.cart')}
@@ -80,22 +68,21 @@ export function NavBar() {
             <ProfileIcon />
             {user.email}
           </span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={theme === 'light'}
-            aria-label={t('nav.themeToggle')}
-            className="locale-toggle"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          >
-            <span className={theme === 'dark' ? 'locale-toggle-option active' : 'locale-toggle-option'}>
-              <MoonIcon size={12} />
-            </span>
-            <span className={theme === 'light' ? 'locale-toggle-option active' : 'locale-toggle-option'}>
-              <SunIcon size={12} />
-            </span>
-            <span className="locale-toggle-thumb" />
-          </button>
+          <div className="theme-toggle" role="radiogroup" aria-label={t('nav.themeToggle')}>
+            {THEME_OPTIONS.map(({ value, icon: Icon }) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={theme === value}
+                aria-label={t(`nav.theme.${value}`)}
+                className={theme === value ? 'theme-toggle-option active' : 'theme-toggle-option'}
+                onClick={() => setTheme(value)}
+              >
+                <Icon size={12} />
+              </button>
+            ))}
+          </div>
           <button
             type="button"
             role="switch"
@@ -134,6 +121,45 @@ export function NavBar() {
           <span className={locale === 'pt' ? 'locale-toggle-option active' : 'locale-toggle-option'}>PT</span>
           <span className="locale-toggle-thumb" />
         </button>
+      )}
+      {user && menuOpen && (
+        <>
+          <div className="nav-drawer-overlay" onClick={() => setMenuOpen(false)} />
+          <div className="nav-drawer card">
+            <NavLink to="/catalog" onClick={() => setMenuOpen(false)}>
+              <CatalogIcon />
+              {t('nav.catalog')}
+            </NavLink>
+            <NavLink to="/library" onClick={() => setMenuOpen(false)}>
+              <LibraryIcon />
+              {t('nav.library')}
+            </NavLink>
+            {isAdmin && (
+              <NavLink to="/admin/orders" onClick={() => setMenuOpen(false)}>
+                <AdminIcon />
+                {t('nav.admin')}
+              </NavLink>
+            )}
+            {isAdmin && (
+              <NavLink to="/admin/events" onClick={() => setMenuOpen(false)}>
+                <AdminEventsIcon />
+                {t('nav.adminEvents')}
+              </NavLink>
+            )}
+            <button
+              type="button"
+              className="link"
+              onClick={() => {
+                setMenuOpen(false);
+                logout();
+                navigate('/login');
+              }}
+            >
+              <LogoutIcon />
+              {t('nav.logout')}
+            </button>
+          </div>
+        </>
       )}
     </header>
   );

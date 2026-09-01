@@ -9,7 +9,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'nav.adminEvents': 'System Events',
     'nav.logout': 'Log out',
     'nav.menu': 'Menu',
-    'nav.themeToggle': 'Dark / Light',
+    'nav.themeToggle': 'Dark / Mixed / Light',
+    'nav.theme.dark': 'Dark',
+    'nav.theme.mixed': 'Mixed (light page, dark header)',
+    'nav.theme.light': 'Light',
 
     'catalog.loadError': 'Could not load the catalog.',
     'catalog.loading': 'Loading catalog…',
@@ -193,7 +196,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'nav.adminEvents': 'Eventos do Sistema',
     'nav.logout': 'Sair',
     'nav.menu': 'Menu',
-    'nav.themeToggle': 'Escuro / Claro',
+    'nav.themeToggle': 'Escuro / Misto / Claro',
+    'nav.theme.dark': 'Escuro',
+    'nav.theme.mixed': 'Misto (página clara, cabeçalho escuro)',
+    'nav.theme.light': 'Claro',
 
     'catalog.loadError': 'Não foi possível carregar o catálogo.',
     'catalog.loading': 'Carregando catálogo…',

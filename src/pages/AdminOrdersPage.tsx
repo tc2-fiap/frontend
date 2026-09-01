@@ -33,6 +33,7 @@ export function AdminOrdersPage() {
   const debouncedMinPrice = useDebouncedValue(minPrice);
   const debouncedMaxPrice = useDebouncedValue(maxPrice);
   const [page, setPage] = useState(1);
+  const [userNames, setUserNames] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { t } = useLocale();
 
@@ -79,6 +80,15 @@ export function AdminOrdersPage() {
       .then((result) => {
         setOrders(result.items);
         setTotalPages(Math.max(1, result.totalPages));
+        const ids = Array.from(new Set(result.items.map((o) => o.userId)));
+        Promise.all(
+          ids.map((id) =>
+            usersApi
+              .getById(id)
+              .then((user) => [id, user.name] as const)
+              .catch(() => [id, id] as const),
+          ),
+        ).then((entries) => setUserNames((prev) => ({ ...prev, ...Object.fromEntries(entries) })));
       })
       .finally(() => setLoading(false));
   }
@@ -219,7 +229,7 @@ export function AdminOrdersPage() {
               {orders.map((order) => (
                 <tr key={order.id} className="clickable" onClick={() => navigate(`/admin/orders/${order.id}`)}>
                   <td>{order.id.slice(0, 8)}</td>
-                  <td>{order.userId.slice(0, 8)}</td>
+                  <td>{userNames[order.userId] ?? order.userId.slice(0, 8)}</td>
                   <td>{order.items.length}</td>
                   <td>{formatPrice(order.totalPrice)}</td>
                   <td>

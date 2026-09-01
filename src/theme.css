@@ -18,6 +18,7 @@
 
   --font-sans: 'Space Grotesk', 'Sora', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --radius: 10px;
+  --navbar-height: 64px;
 }
 
 /* Light theme — same accent/success/warning/danger hues as the dark
@@ -26,6 +27,37 @@
    ground. Applied via [data-theme] rather than prefers-color-scheme
    since this is an explicit user toggle, not OS-driven. */
 :root[data-theme='light'] {
+  --color-bg: #f7f5fb;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f0ecf9;
+  --color-border: #ddd6f3;
+  --color-text: #1a1030;
+  --color-text-muted: #6b6280;
+}
+
+/* Mixed theme — same light palette as above everywhere, except the header
+   (.navbar) keeps the dark palette. The nav drawer is DOM-nested inside
+   .navbar but is visually page content, not header chrome, so it's
+   re-scoped back to light immediately below. */
+:root[data-theme='mixed'] {
+  --color-bg: #f7f5fb;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f0ecf9;
+  --color-border: #ddd6f3;
+  --color-text: #1a1030;
+  --color-text-muted: #6b6280;
+}
+
+[data-theme='mixed'] .navbar {
+  --color-bg: #0b0712;
+  --color-surface: #1a1030;
+  --color-surface-raised: #241a42;
+  --color-border: #342a56;
+  --color-text: #f5f3ff;
+  --color-text-muted: #a89fc2;
+}
+
+[data-theme='mixed'] .nav-drawer {
   --color-bg: #f7f5fb;
   --color-surface: #ffffff;
   --color-surface-raised: #f0ecf9;

@@ -31,6 +31,7 @@ export const usersApi = {
   login: (email: string, password: string) => api.post<LoginResponse>('/api/users/login', { email, password }),
   loginWithGoogle: (idToken: string) => api.post<LoginResponse>('/api/users/login/google', { idToken }),
   me: () => api.get<{ id: string; email: string }>('/api/users/me'),
+  getById: (id: string) => api.get<UserResponse>(`/api/users/${id}`),
   adminAllUserEvents: () => api.get<PagedResult<UserEventResponse>>('/api/users/admin/events?pageSize=100'),
   adminSearchByName: (name: string) =>
     api.get<PagedResult<UserResponse>>(`/api/users/admin/search${toQueryString({ name, pageSize: 100 })}`),
