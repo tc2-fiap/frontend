@@ -678,6 +678,15 @@ pre.payload {
   position: relative;
 }
 
+.nav-apps-toggle {
+  position: relative;
+}
+
+.nav-apps-toggle .nav-dropdown {
+  right: 0;
+  left: auto;
+}
+
 .icon-btn {
   display: inline-flex;
   align-items: center;

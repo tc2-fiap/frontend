@@ -37,6 +37,7 @@ export function NavBar() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [appsMenuOpen, setAppsMenuOpen] = useState(false);
 
   return (
     <header className="navbar">
@@ -98,15 +99,51 @@ export function NavBar() {
             <span className={locale === 'pt' ? 'locale-toggle-option active' : 'locale-toggle-option'}>PT</span>
             <span className="locale-toggle-thumb" />
           </button>
-          <button
-            type="button"
-            className="nav-hamburger"
-            aria-expanded={menuOpen}
-            aria-label={t('nav.menu')}
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            {menuOpen ? <CloseIcon size={18} /> : <AppsIcon size={18} />}
-          </button>
+          <div className="nav-apps-toggle">
+            <button
+              type="button"
+              className="nav-hamburger"
+              aria-expanded={appsMenuOpen}
+              aria-label={t('nav.menu')}
+              onClick={() => setAppsMenuOpen((open) => !open)}
+            >
+              {appsMenuOpen ? <CloseIcon size={18} /> : <AppsIcon size={18} />}
+            </button>
+            {appsMenuOpen && (
+              <div className="nav-dropdown card">
+                <NavLink to="/catalog" onClick={() => setAppsMenuOpen(false)}>
+                  <CatalogIcon />
+                  {t('nav.catalog')}
+                </NavLink>
+                <NavLink to="/library" onClick={() => setAppsMenuOpen(false)}>
+                  <LibraryIcon />
+                  {t('nav.library')}
+                </NavLink>
+                <NavLink to="/orders" onClick={() => setAppsMenuOpen(false)}>
+                  <OrderIcon />
+                  {t('nav.myOrders')}
+                </NavLink>
+                {isAdmin && (
+                  <NavLink to="/admin/orders" onClick={() => setAppsMenuOpen(false)}>
+                    <AdminIcon />
+                    {t('nav.admin')}
+                  </NavLink>
+                )}
+                {isAdmin && (
+                  <NavLink to="/admin/events" onClick={() => setAppsMenuOpen(false)}>
+                    <AdminEventsIcon />
+                    {t('nav.adminEvents')}
+                  </NavLink>
+                )}
+                {isAdmin && (
+                  <NavLink to="/admin/games/new" onClick={() => setAppsMenuOpen(false)}>
+                    <PlusIcon />
+                    {t('nav.createGame')}
+                  </NavLink>
+                )}
+              </div>
+            )}
+          </div>
           <button
             type="button"
             className="link"
