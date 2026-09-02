@@ -30,6 +30,11 @@ const THEME_OPTIONS: { value: Theme; icon: typeof MoonIcon }[] = [
   { value: 'light', icon: SunIcon },
 ];
 
+function nextTheme(current: Theme): Theme {
+  const index = THEME_OPTIONS.findIndex((option) => option.value === current);
+  return THEME_OPTIONS[(index + 1) % THEME_OPTIONS.length].value;
+}
+
 export function NavBar() {
   const { user, isAdmin, logout } = useAuth();
   const cart = useCart();
@@ -72,21 +77,18 @@ export function NavBar() {
             <ProfileIcon />
             {user.email}
           </span>
-          <div className="theme-toggle" role="radiogroup" aria-label={t('nav.themeToggle')}>
+          <button
+            type="button"
+            className="theme-toggle"
+            aria-label={t(`nav.theme.${theme}`)}
+            onClick={() => setTheme(nextTheme(theme))}
+          >
             {THEME_OPTIONS.map(({ value, icon: Icon }) => (
-              <button
-                key={value}
-                type="button"
-                role="radio"
-                aria-checked={theme === value}
-                aria-label={t(`nav.theme.${value}`)}
-                className={theme === value ? 'theme-toggle-option active' : 'theme-toggle-option'}
-                onClick={() => setTheme(value)}
-              >
+              <span key={value} className={theme === value ? 'theme-toggle-option active' : 'theme-toggle-option'}>
                 <Icon size={12} />
-              </button>
+              </span>
             ))}
-          </div>
+          </button>
           <button
             type="button"
             role="switch"
