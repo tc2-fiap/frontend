@@ -1,6 +1,7 @@
 import { api } from './client';
 import type {
   AuthConfig,
+  CreateGameRequest,
   GameResponse,
   LibraryItemResponse,
   LoginResponse,
@@ -11,6 +12,7 @@ import type {
   PaymentCheckoutResponse,
   PaymentResponse,
   QuotationResponse,
+  UpdateGameRequest,
   UserEventResponse,
   UserResponse,
 } from './types';
@@ -38,15 +40,26 @@ export const usersApi = {
 };
 
 export const catalogApi = {
-  search: (params?: { title?: string; genre?: string; platform?: string; minPrice?: number; maxPrice?: number }) =>
-    api.get<PagedResult<GameResponse>>(`/api/games${toQueryString({ pageSize: 100, ...params })}`),
+  search: (params?: {
+    title?: string;
+    genre?: string;
+    platform?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    sortBy?: string;
+    sortDir?: string;
+  }) => api.get<PagedResult<GameResponse>>(`/api/games${toQueryString({ pageSize: 100, ...params })}`),
   get: (id: string) => api.get<GameResponse>(`/api/games/${id}`),
+  create: (body: CreateGameRequest) => api.post<GameResponse>('/api/games', body),
+  update: (id: string, body: UpdateGameRequest) => api.put<GameResponse>(`/api/games/${id}`, body),
   quotation: () => api.get<QuotationResponse>('/api/quotations/usd-brl'),
 };
 
 export const ordersApi = {
   create: (gameIds: string[]) => api.post<OrderResponse>('/api/orders', { gameIds }),
   get: (id: string) => api.get<OrderResponse>(`/api/orders/${id}`),
+  mine: (params?: { page?: number; pageSize?: number }) =>
+    api.get<PagedResult<OrderResponse>>(`/api/orders/mine${toQueryString({ pageSize: 10, ...params })}`),
   library: () => api.get<PagedResult<LibraryItemResponse>>('/api/library?pageSize=100'),
   removeFromLibrary: (gameId: string) => api.delete<void>(`/api/library/${gameId}`),
   adminAllOrders: (params?: {

@@ -4,7 +4,7 @@ import { catalogApi, ordersApi } from '../api/endpoints';
 import { ApiError } from '../api/client';
 import type { GameResponse } from '../api/types';
 import { FilterActions } from '../components/FilterActions';
-import { CatalogIcon, ColumnsIcon } from '../components/NavIcons';
+import { CatalogIcon, ColumnsIcon, SortIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import { PriceRangeSlider } from '../components/PriceRangeSlider';
 import { useCart } from '../cart/CartContext';
@@ -19,6 +19,8 @@ const GRID_COLS_KEY = 'fiap-games-catalog-grid-cols';
 const GRID_COLS_OPTIONS = [2, 3, 4, 5, 6];
 
 type OwnedFilter = 'all' | 'owned' | 'not-owned';
+type SortBy = 'createdAt' | 'price' | 'platform' | 'genre' | 'title';
+type SortDir = 'asc' | 'desc';
 
 function initialGridCols(): number {
   try {
@@ -48,6 +50,8 @@ export function CatalogPage() {
   const debouncedMinPrice = useDebouncedValue(minPrice);
   const debouncedMaxPrice = useDebouncedValue(maxPrice);
   const [ownedFilter, setOwnedFilter] = useState<OwnedFilter>('all');
+  const [sortBy, setSortBy] = useState<SortBy>('createdAt');
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [page, setPage] = useState(1);
   const [gridCols, setGridCols] = useState(initialGridCols);
   const [densityMenuOpen, setDensityMenuOpen] = useState(false);
@@ -93,7 +97,7 @@ export function CatalogPage() {
       });
   }, []);
 
-  // Every filter here — search/genre/platform/price — is a real backend
+  // Every filter here — search/genre/platform/price/sort — is a real backend
   // query param. Owned/not-owned is the one exception: it needs orders-api's
   // ownership data cross-referenced against these already-filtered results,
   // and the hard rule against cross-schema queries means that join can only
@@ -107,13 +111,15 @@ export function CatalogPage() {
         platform: platformFilter === 'all' ? undefined : platformFilter,
         minPrice: debouncedMinPrice > priceBounds.min ? debouncedMinPrice : undefined,
         maxPrice: debouncedMaxPrice < priceBounds.max ? debouncedMaxPrice : undefined,
+        sortBy,
+        sortDir,
       })
       .then((result) => setGames(result.items))
       .catch((err) => setError(err instanceof ApiError ? err.message : t('catalog.loadError')))
       .finally(() => setHasLoadedOnce(true));
   }
 
-  useEffect(fetchGames, [debouncedSearch, genreFilter, platformFilter, debouncedMinPrice, debouncedMaxPrice, priceBounds, t]);
+  useEffect(fetchGames, [debouncedSearch, genreFilter, platformFilter, debouncedMinPrice, debouncedMaxPrice, priceBounds, sortBy, sortDir, t]);
 
   const filtered = games.filter((g) => {
     const owned = ownedIds.has(g.id);
@@ -131,6 +137,8 @@ export function CatalogPage() {
     setSearch('');
     setMinPrice(priceBounds.min);
     setMaxPrice(priceBounds.max);
+    setSortBy('createdAt');
+    setSortDir('asc');
     setOwnedFilter('all');
     setPage(1);
   }
@@ -275,6 +283,37 @@ export function CatalogPage() {
                 <option value="owned">{t('catalog.ownedOwned')}</option>
                 <option value="not-owned">{t('catalog.ownedNotOwned')}</option>
               </select>
+            </div>
+            <div className="field">
+              <label>{t('catalog.filterSort')}</label>
+              <div className="sort-field">
+                <select
+                  value={sortBy}
+                  onChange={(e) => {
+                    setSortBy(e.target.value as SortBy);
+                    setPage(1);
+                  }}
+                >
+                  <option value="createdAt">{t('catalog.sortCreatedAt')}</option>
+                  <option value="price">{t('catalog.sortPrice')}</option>
+                  <option value="platform">{t('catalog.sortPlatform')}</option>
+                  <option value="genre">{t('catalog.sortGenre')}</option>
+                  <option value="title">{t('catalog.sortTitle')}</option>
+                </select>
+                <button
+                  type="button"
+                  className="icon-btn"
+                  aria-label={sortDir === 'asc' ? t('catalog.sortDirAsc') : t('catalog.sortDirDesc')}
+                  onClick={() => {
+                    setSortDir((dir) => (dir === 'asc' ? 'desc' : 'asc'));
+                    setPage(1);
+                  }}
+                >
+                  <span style={{ display: 'inline-flex', transform: sortDir === 'desc' ? 'rotate(180deg)' : undefined }}>
+                    <SortIcon size={16} />
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
 

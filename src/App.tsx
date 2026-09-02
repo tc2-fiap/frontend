@@ -9,9 +9,11 @@ import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { LibraryPage } from './pages/LibraryPage';
 import { OrderStatusPage } from './pages/OrderStatusPage';
+import { MyOrdersPage } from './pages/MyOrdersPage';
 import { AdminOrdersPage } from './pages/AdminOrdersPage';
 import { AdminOrderDetailPage } from './pages/AdminOrderDetailPage';
 import { AdminEventsPage } from './pages/AdminEventsPage';
+import { AdminCreateGamePage } from './pages/AdminCreateGamePage';
 
 export function App() {
   const { user } = useAuth();
@@ -29,12 +31,14 @@ export function App() {
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/library" element={<LibraryPage />} />
+            <Route path="/orders" element={<MyOrdersPage />} />
             <Route path="/orders/:orderId" element={<OrderStatusPage />} />
 
             <Route element={<RequireAdmin />}>
               <Route path="/admin/orders" element={<AdminOrdersPage />} />
               <Route path="/admin/orders/:orderId" element={<AdminOrderDetailPage />} />
               <Route path="/admin/events" element={<AdminEventsPage />} />
+              <Route path="/admin/games/new" element={<AdminCreateGamePage />} />
             </Route>
           </Route>
 

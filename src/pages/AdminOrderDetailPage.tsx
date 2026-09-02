@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { notificationsApi, ordersApi, paymentsApi } from '../api/endpoints';
-import type { NotificationResponse, OrderEventResponse, OrderResponse, PaymentResponse } from '../api/types';
+import { catalogApi, notificationsApi, ordersApi, paymentsApi, usersApi } from '../api/endpoints';
+import type { GameResponse, NotificationResponse, OrderEventResponse, OrderResponse, PaymentResponse } from '../api/types';
 import { OrderIcon } from '../components/NavIcons';
 import { useLocale } from '../i18n/LocaleContext';
 import { formatPrice } from '../utils/currency';
@@ -16,6 +16,8 @@ export function AdminOrderDetailPage() {
   const [events, setEvents] = useState<OrderEventResponse[]>([]);
   const [payment, setPayment] = useState<PaymentResponse | null>(null);
   const [notifications, setNotifications] = useState<NotificationResponse[]>([]);
+  const [games, setGames] = useState<Record<string, GameResponse>>({});
+  const [userName, setUserName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { t } = useLocale();
 
@@ -23,7 +25,9 @@ export function AdminOrderDetailPage() {
     if (!orderId) return;
 
     Promise.allSettled([
-      ordersApi.adminAllOrders().then((result) => result.items.find((o) => o.id === orderId) ?? null),
+      // orderId as a filter, not adminAllOrders()'s pageSize:10 default —
+      // otherwise any order beyond the 10 most recent is never found.
+      ordersApi.adminAllOrders({ orderId, pageSize: 1 }).then((result) => result.items[0] ?? null),
       ordersApi.adminOrderEvents(orderId),
       paymentsApi.adminGetByOrder(orderId),
       notificationsApi.adminGetByOrder(orderId),
@@ -35,6 +39,20 @@ export function AdminOrderDetailPage() {
       setLoading(false);
     });
   }, [orderId]);
+
+  // Item titles and the buyer's name aren't orders-api's data — resolved
+  // here from catalog-api/users-api once the order itself is known, same
+  // "compose at the view layer" pattern as the fetch above.
+  useEffect(() => {
+    if (!order) return;
+    Promise.all(order.items.map((item) => catalogApi.get(item.gameId).catch(() => null))).then((results) => {
+      setGames(Object.fromEntries(results.filter((g): g is GameResponse => g !== null).map((g) => [g.id, g])));
+    });
+    usersApi
+      .getById(order.userId)
+      .then((user) => setUserName(user.name))
+      .catch(() => setUserName(order.userId));
+  }, [order]);
 
   if (loading) return <p className="muted">{t('adminOrderDetail.loading')}</p>;
 
@@ -49,13 +67,13 @@ export function AdminOrderDetailPage() {
         <div className="card">
           <p>
             {t('adminOrderDetail.status')} <span className={`badge ${order.status.toLowerCase()}`}>{t(`status.${order.status}`)}</span> ·{' '}
-            {t('adminOrderDetail.price')} {formatPrice(order.totalPrice)} · {t('adminOrderDetail.user')} {order.userId}
+            {t('adminOrderDetail.price')} {formatPrice(order.totalPrice)} · {t('adminOrderDetail.user')} {userName ?? order.userId}
           </p>
           <p className="muted">{t('adminOrderDetail.itemsTitle')}</p>
           <ul>
             {order.items.map((item) => (
               <li key={item.gameId}>
-                {item.gameId.slice(0, 8)} — {formatPrice(item.price)}
+                {games[item.gameId]?.title ?? item.gameId.slice(0, 8)} — {formatPrice(item.price)}
               </li>
             ))}
           </ul>

@@ -16,6 +16,8 @@ import {
   LibraryIcon,
   LogoutIcon,
   MoonIcon,
+  OrderIcon,
+  PlusIcon,
   ProfileIcon,
   SunIcon,
 } from './NavIcons';
@@ -134,6 +136,10 @@ export function NavBar() {
               <LibraryIcon />
               {t('nav.library')}
             </NavLink>
+            <NavLink to="/orders" onClick={() => setMenuOpen(false)}>
+              <OrderIcon />
+              {t('nav.myOrders')}
+            </NavLink>
             {isAdmin && (
               <NavLink to="/admin/orders" onClick={() => setMenuOpen(false)}>
                 <AdminIcon />
@@ -144,6 +150,12 @@ export function NavBar() {
               <NavLink to="/admin/events" onClick={() => setMenuOpen(false)}>
                 <AdminEventsIcon />
                 {t('nav.adminEvents')}
+              </NavLink>
+            )}
+            {isAdmin && (
+              <NavLink to="/admin/games/new" onClick={() => setMenuOpen(false)}>
+                <PlusIcon />
+                {t('nav.createGame')}
               </NavLink>
             )}
             <button

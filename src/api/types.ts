@@ -28,6 +28,18 @@ export interface GameResponse {
   createdAtUtc: string;
 }
 
+export interface CreateGameRequest {
+  title: string;
+  genre: string;
+  platform: string;
+  price: number;
+  releaseDate: string;
+  description: string | null;
+  coverImageUrl: string | null;
+}
+
+export type UpdateGameRequest = CreateGameRequest;
+
 export interface OrderItemResponse {
   gameId: string;
   price: number;
