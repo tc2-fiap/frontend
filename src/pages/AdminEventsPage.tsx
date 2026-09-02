@@ -1,8 +1,9 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { notificationsApi, ordersApi, paymentsApi, usersApi } from '../api/endpoints';
 import type { NotificationResponse, OrderEventResponse, PaymentResponse, UserEventResponse } from '../api/types';
 import { FilterActions } from '../components/FilterActions';
-import { AdminEventsIcon } from '../components/NavIcons';
+import { AdminEventsIcon, ArrowLeftIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import { SkeletonTableRows } from '../components/Skeleton';
 import { useLocale } from '../i18n/LocaleContext';
@@ -130,6 +131,9 @@ export function AdminEventsPage() {
     <div>
       <div className="page-title-row">
         <h1 className="page-title">
+          <Link to="/catalog" className="page-title-back" aria-label={t('common.backToCatalog')} title={t('common.backToCatalog')}>
+            <ArrowLeftIcon size={20} />
+          </Link>
           <AdminEventsIcon size={26} />
           {t('adminEvents.title')}
         </h1>

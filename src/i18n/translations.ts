@@ -2,6 +2,7 @@ export type Locale = 'en' | 'pt';
 
 export const translations: Record<Locale, Record<string, string>> = {
   en: {
+    'common.backToCatalog': 'Back to catalog',
     'nav.catalog': 'Catalog',
     'nav.library': 'Library',
     'nav.myOrders': 'My Orders',
@@ -222,6 +223,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'channel.Resend': 'Resend',
   },
   pt: {
+    'common.backToCatalog': 'Voltar ao catálogo',
     'nav.catalog': 'Catálogo',
     'nav.library': 'Biblioteca',
     'nav.myOrders': 'Meus Pedidos',

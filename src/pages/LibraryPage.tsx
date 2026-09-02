@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { catalogApi, ordersApi } from '../api/endpoints';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { FilterActions } from '../components/FilterActions';
-import { LibraryIcon, OpenInNewIcon } from '../components/NavIcons';
+import { ArrowLeftIcon, LibraryIcon, OpenInNewIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import { SkeletonGameCard } from '../components/Skeleton';
 import type { GameResponse, LibraryItemResponse } from '../api/types';
@@ -84,6 +84,9 @@ export function LibraryPage() {
     return (
       <div>
         <h1 className="page-title">
+          <Link to="/catalog" className="page-title-back" aria-label={t('common.backToCatalog')} title={t('common.backToCatalog')}>
+            <ArrowLeftIcon size={20} />
+          </Link>
           <LibraryIcon size={26} />
           {t('library.title')}
         </h1>
@@ -101,6 +104,9 @@ export function LibraryPage() {
     <div>
       <div className="page-title-row">
         <h1 className="page-title">
+          <Link to="/catalog" className="page-title-back" aria-label={t('common.backToCatalog')} title={t('common.backToCatalog')}>
+            <ArrowLeftIcon size={20} />
+          </Link>
           <LibraryIcon size={26} />
           {t('library.title')}
         </h1>

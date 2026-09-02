@@ -588,6 +588,19 @@ pre.payload {
   color: var(--color-accent);
 }
 
+.page-title-back {
+  display: inline-flex;
+  color: var(--color-text-muted);
+}
+
+.page-title-back svg {
+  color: inherit;
+}
+
+.page-title-back:hover {
+  color: var(--color-text);
+}
+
 .pagination {
   display: flex;
   align-items: center;

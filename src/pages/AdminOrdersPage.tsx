@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { catalogApi, ordersApi, usersApi } from '../api/endpoints';
 import type { OrderResponse } from '../api/types';
 import { FilterActions } from '../components/FilterActions';
-import { AdminIcon } from '../components/NavIcons';
+import { AdminIcon, ArrowLeftIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import { PriceRangeSlider } from '../components/PriceRangeSlider';
 import { SkeletonTableRows } from '../components/Skeleton';
@@ -112,6 +112,9 @@ export function AdminOrdersPage() {
     <div>
       <div className="page-title-row">
         <h1 className="page-title">
+          <Link to="/catalog" className="page-title-back" aria-label={t('common.backToCatalog')} title={t('common.backToCatalog')}>
+            <ArrowLeftIcon size={20} />
+          </Link>
           <AdminIcon size={26} />
           {t('adminOrders.title')}
         </h1>

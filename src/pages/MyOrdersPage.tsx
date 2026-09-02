@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ordersApi } from '../api/endpoints';
 import type { OrderResponse } from '../api/types';
-import { OrderIcon } from '../components/NavIcons';
+import { ArrowLeftIcon, OrderIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import { SkeletonTableRows } from '../components/Skeleton';
 import { useLocale } from '../i18n/LocaleContext';
@@ -35,6 +35,9 @@ export function MyOrdersPage() {
   return (
     <div>
       <h1 className="page-title">
+        <Link to="/catalog" className="page-title-back" aria-label={t('common.backToCatalog')} title={t('common.backToCatalog')}>
+          <ArrowLeftIcon size={20} />
+        </Link>
         <OrderIcon size={26} />
         {t('myOrders.title')}
       </h1>

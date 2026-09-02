@@ -1,14 +1,16 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { catalogApi } from '../api/endpoints';
 import { ApiError } from '../api/client';
-import { AdminIcon } from '../components/NavIcons';
+import { AdminIcon, ArrowLeftIcon } from '../components/NavIcons';
 import { useLocale } from '../i18n/LocaleContext';
+import { formatPrice } from '../utils/currency';
 
 export function AdminCreateGamePage() {
   const [title, setTitle] = useState('');
   const [genre, setGenre] = useState('');
   const [platform, setPlatform] = useState('');
-  const [price, setPrice] = useState('');
+  const [priceCents, setPriceCents] = useState(0);
   const [releaseDate, setReleaseDate] = useState('');
   const [description, setDescription] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('');
@@ -27,7 +29,7 @@ export function AdminCreateGamePage() {
         title,
         genre,
         platform,
-        price: Number(price),
+        price: priceCents / 100,
         releaseDate,
         description: description || null,
         coverImageUrl: coverImageUrl || null,
@@ -36,7 +38,7 @@ export function AdminCreateGamePage() {
       setTitle('');
       setGenre('');
       setPlatform('');
-      setPrice('');
+      setPriceCents(0);
       setReleaseDate('');
       setDescription('');
       setCoverImageUrl('');
@@ -50,6 +52,9 @@ export function AdminCreateGamePage() {
   return (
     <div style={{ maxWidth: 500 }}>
       <h1 className="page-title">
+        <Link to="/catalog" className="page-title-back" aria-label={t('common.backToCatalog')} title={t('common.backToCatalog')}>
+          <ArrowLeftIcon size={20} />
+        </Link>
         <AdminIcon size={26} />
         {t('adminCreateGame.title')}
       </h1>
@@ -72,12 +77,11 @@ export function AdminCreateGamePage() {
           <label htmlFor="price">{t('adminCreateGame.fieldPrice')}</label>
           <input
             id="price"
-            type="number"
-            step="0.01"
-            min="0"
+            type="text"
+            inputMode="numeric"
             required
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            value={formatPrice(priceCents / 100)}
+            onChange={(e) => setPriceCents(Number(e.target.value.replace(/\D/g, '')) || 0)}
           />
         </div>
         <div className="field">
