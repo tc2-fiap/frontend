@@ -8,6 +8,7 @@ import { Logo } from './Logo';
 import {
   AdminEventsIcon,
   AdminIcon,
+  AppsIcon,
   CartIcon,
   CatalogIcon,
   CloseIcon,
@@ -96,6 +97,15 @@ export function NavBar() {
             <span className={locale === 'en' ? 'locale-toggle-option active' : 'locale-toggle-option'}>EN</span>
             <span className={locale === 'pt' ? 'locale-toggle-option active' : 'locale-toggle-option'}>PT</span>
             <span className="locale-toggle-thumb" />
+          </button>
+          <button
+            type="button"
+            className="nav-hamburger"
+            aria-expanded={menuOpen}
+            aria-label={t('nav.menu')}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? <CloseIcon size={18} /> : <AppsIcon size={18} />}
           </button>
           <button
             type="button"

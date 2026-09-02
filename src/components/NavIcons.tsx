@@ -115,6 +115,15 @@ export function HamburgerIcon({ size = 15 }: IconProps) {
   );
 }
 
+export function AppsIcon({ size = 15 }: IconProps) {
+  const dots = [3, 12, 21];
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" {...base}>
+      {dots.flatMap((cy) => dots.map((cx) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.6" fill="currentColor" stroke="none" />))}
+    </svg>
+  );
+}
+
 export function CloseIcon({ size = 15 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" {...base}>
