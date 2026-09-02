@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { catalogApi, ordersApi } from '../api/endpoints';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { FilterActions } from '../components/FilterActions';
-import { LibraryIcon } from '../components/NavIcons';
+import { LibraryIcon, OpenInNewIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import type { GameResponse, LibraryItemResponse } from '../api/types';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
@@ -153,6 +154,16 @@ export function LibraryPage() {
                   const game = games[item.gameId];
                   return (
                     <div key={`${item.orderId}-${item.gameId}`} className="card game-card">
+                      <Link
+                        to={`/orders/${item.orderId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="game-card-open-order"
+                        aria-label={t('library.openOrder')}
+                        title={t('library.openOrder')}
+                      >
+                        <OpenInNewIcon size={16} />
+                      </Link>
                       {game?.coverImageUrl ? (
                         <img className="game-card-cover" src={game.coverImageUrl} alt={game.title} />
                       ) : (

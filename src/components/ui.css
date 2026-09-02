@@ -139,9 +139,30 @@
 }
 
 .game-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
+}
+
+.game-card-open-order {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.game-card-open-order:hover {
+  color: var(--color-text);
 }
 
 .game-card > .badge.paid:last-child {
