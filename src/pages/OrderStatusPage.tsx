@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { catalogApi, ordersApi } from '../api/endpoints';
 import type { GameResponse, OrderResponse } from '../api/types';
-import { OrderIcon } from '../components/NavIcons';
+import { ArrowLeftIcon, OrderIcon } from '../components/NavIcons';
 import { PaymentStatusCard } from '../components/PaymentStatusCard';
 import { useOrderPaymentStatus } from '../hooks/useOrderPaymentStatus';
 import { useLocale } from '../i18n/LocaleContext';
@@ -59,6 +59,10 @@ function OrderStatusBody({ order, games }: { order: OrderResponse; games: Record
 
   return (
     <div style={{ maxWidth: 900 }}>
+      <Link to="/orders" className="btn secondary" style={{ marginBottom: 20, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <ArrowLeftIcon size={16} />
+        {t('orderStatus.back')}
+      </Link>
       <h1 className="page-title">
         <OrderIcon size={26} />
         {t('orderStatus.orderPrefix', { id: order.id.slice(0, 8) })}

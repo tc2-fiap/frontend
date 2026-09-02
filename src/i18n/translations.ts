@@ -109,6 +109,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'orderStatus.paidMessage': 'Your game is now in your library.',
     'orderStatus.failedMessage': 'This payment was declined.',
     'orderStatus.goToLibrary': 'Go to library',
+    'orderStatus.back': 'Back to My Orders',
 
     'login.genericError': 'Something went wrong.',
     'login.googleError': 'Google sign-in failed.',
@@ -327,6 +328,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'orderStatus.paidMessage': 'Seu jogo já está na sua biblioteca.',
     'orderStatus.failedMessage': 'Este pagamento foi recusado.',
     'orderStatus.goToLibrary': 'Ir para a biblioteca',
+    'orderStatus.back': 'Voltar para Meus Pedidos',
 
     'login.genericError': 'Algo deu errado.',
     'login.googleError': 'Falha no login com Google.',
