@@ -46,6 +46,9 @@ export function OrderStatusPage() {
     return (
       <div style={{ maxWidth: 900 }}>
         <h1 className="page-title">
+          <Link to="/orders" className="page-title-back" aria-label={t('orderStatus.back')} title={t('orderStatus.back')}>
+            <ArrowLeftIcon size={20} />
+          </Link>
           <OrderIcon size={26} />
           <Skeleton width={100} height={20} />
         </h1>
@@ -79,11 +82,10 @@ function OrderStatusBody({ order, games }: { order: OrderResponse; games: Record
 
   return (
     <div style={{ maxWidth: 900 }}>
-      <Link to="/orders" className="btn secondary" style={{ marginBottom: 20, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-        <ArrowLeftIcon size={16} />
-        {t('orderStatus.back')}
-      </Link>
       <h1 className="page-title">
+        <Link to="/orders" className="page-title-back" aria-label={t('orderStatus.back')} title={t('orderStatus.back')}>
+          <ArrowLeftIcon size={20} />
+        </Link>
         <OrderIcon size={26} />
         {t('orderStatus.orderPrefix', { id: order.id.slice(0, 8) })}
       </h1>
