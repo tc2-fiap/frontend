@@ -4,6 +4,7 @@ import { ordersApi } from '../api/endpoints';
 import type { OrderResponse } from '../api/types';
 import { OrderIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
+import { SkeletonTableRows } from '../components/Skeleton';
 import { useLocale } from '../i18n/LocaleContext';
 import { formatPrice } from '../utils/currency';
 
@@ -39,7 +40,18 @@ export function MyOrdersPage() {
       </h1>
 
       {loading ? (
-        <p className="muted">{t('myOrders.loading')}</p>
+        <table aria-busy="true" aria-label={t('myOrders.loading')}>
+          <thead>
+            <tr>
+              <th>{t('myOrders.colOrder')}</th>
+              <th>{t('myOrders.colItems')}</th>
+              <th>{t('myOrders.colPrice')}</th>
+              <th>{t('myOrders.colStatus')}</th>
+              <th>{t('myOrders.colCreated')}</th>
+            </tr>
+          </thead>
+          <SkeletonTableRows rows={5} columns={5} />
+        </table>
       ) : orders.length === 0 ? (
         <p className="empty-state">{t('myOrders.empty')}</p>
       ) : (

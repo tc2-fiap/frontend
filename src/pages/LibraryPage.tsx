@@ -5,6 +5,7 @@ import { ConfirmModal } from '../components/ConfirmModal';
 import { FilterActions } from '../components/FilterActions';
 import { LibraryIcon, OpenInNewIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
+import { SkeletonGameCard } from '../components/Skeleton';
 import type { GameResponse, LibraryItemResponse } from '../api/types';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useLocale } from '../i18n/LocaleContext';
@@ -79,7 +80,20 @@ export function LibraryPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  if (loading) return <p className="muted">{t('library.loading')}</p>;
+  if (loading)
+    return (
+      <div>
+        <h1 className="page-title">
+          <LibraryIcon size={26} />
+          {t('library.title')}
+        </h1>
+        <div className="grid" aria-busy="true" aria-label={t('library.loading')}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <SkeletonGameCard key={i} />
+          ))}
+        </div>
+      </div>
+    );
 
   const confirmGame = confirmGameId ? games[confirmGameId] : undefined;
 

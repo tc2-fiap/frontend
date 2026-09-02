@@ -4,6 +4,7 @@ import type { NotificationResponse, OrderEventResponse, PaymentResponse, UserEve
 import { FilterActions } from '../components/FilterActions';
 import { AdminEventsIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
+import { SkeletonTableRows } from '../components/Skeleton';
 import { useLocale } from '../i18n/LocaleContext';
 import { formatJson } from '../utils/formatJson';
 
@@ -125,8 +126,6 @@ export function AdminEventsPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  if (loading) return <p className="muted">{t('adminEvents.loading')}</p>;
-
   return (
     <div>
       <div className="page-title-row">
@@ -210,7 +209,19 @@ export function AdminEventsPage() {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {loading ? (
+        <table aria-busy="true" aria-label={t('adminEvents.loading')}>
+          <thead>
+            <tr>
+              <th>{t('adminEvents.colSource')}</th>
+              <th>{t('adminEvents.colKind')}</th>
+              <th>{t('adminEvents.colLabel')}</th>
+              <th>{t('adminEvents.colTimestamp')}</th>
+            </tr>
+          </thead>
+          <SkeletonTableRows rows={8} columns={4} />
+        </table>
+      ) : filtered.length === 0 ? (
         <p className="empty-state">{t('adminEvents.empty')}</p>
       ) : (
         <>

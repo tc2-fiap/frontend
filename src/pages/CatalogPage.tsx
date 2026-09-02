@@ -7,6 +7,7 @@ import { FilterActions } from '../components/FilterActions';
 import { CatalogIcon, ColumnsIcon, SortIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import { PriceRangeSlider } from '../components/PriceRangeSlider';
+import { SkeletonGameCard } from '../components/Skeleton';
 import { useCart } from '../cart/CartContext';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useLocale } from '../i18n/LocaleContext';
@@ -162,7 +163,20 @@ export function CatalogPage() {
     navigate('/checkout');
   }
 
-  if (!hasLoadedOnce) return <p className="muted">{t('catalog.loading')}</p>;
+  if (!hasLoadedOnce)
+    return (
+      <div>
+        <h1 className="page-title">
+          <CatalogIcon size={26} />
+          {t('catalog.title')}
+        </h1>
+        <div className="grid" aria-busy="true" aria-label={t('catalog.loading')}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <SkeletonGameCard key={i} />
+          ))}
+        </div>
+      </div>
+    );
 
   return (
     <div>

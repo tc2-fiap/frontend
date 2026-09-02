@@ -4,6 +4,7 @@ import { catalogApi, ordersApi } from '../api/endpoints';
 import type { GameResponse, OrderResponse } from '../api/types';
 import { ArrowLeftIcon, OrderIcon } from '../components/NavIcons';
 import { PaymentStatusCard } from '../components/PaymentStatusCard';
+import { Skeleton, SkeletonCard } from '../components/Skeleton';
 import { useOrderPaymentStatus } from '../hooks/useOrderPaymentStatus';
 import { useLocale } from '../i18n/LocaleContext';
 import { useQuotation } from '../hooks/useQuotation';
@@ -41,7 +42,26 @@ export function OrderStatusPage() {
   }, [itemIds]);
 
   if (error) return <p className="error">{error}</p>;
-  if (!order) return <p className="muted">{t('orderStatus.loading')}</p>;
+  if (!order)
+    return (
+      <div style={{ maxWidth: 900 }}>
+        <h1 className="page-title">
+          <OrderIcon size={26} />
+          <Skeleton width={100} height={20} />
+        </h1>
+        <div className="order-status-columns" aria-busy="true" aria-label={t('orderStatus.loading')}>
+          <div>
+            <SkeletonCard lines={4} />
+          </div>
+          <div>
+            <SkeletonCard lines={2} />
+            <div style={{ marginTop: 16 }}>
+              <SkeletonCard lines={2} />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
 
   return <OrderStatusBody order={order} games={games} />;
 }

@@ -6,6 +6,7 @@ import { FilterActions } from '../components/FilterActions';
 import { AdminIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import { PriceRangeSlider } from '../components/PriceRangeSlider';
+import { SkeletonTableRows } from '../components/Skeleton';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useLocale } from '../i18n/LocaleContext';
 import { formatPrice } from '../utils/currency';
@@ -209,7 +210,19 @@ export function AdminOrdersPage() {
       </div>
 
       {loading ? (
-        <p className="muted">{t('adminOrders.loading')}</p>
+        <table aria-busy="true" aria-label={t('adminOrders.loading')}>
+          <thead>
+            <tr>
+              <th>{t('adminOrders.colOrder')}</th>
+              <th>{t('adminOrders.colUser')}</th>
+              <th>{t('adminOrders.colItems')}</th>
+              <th>{t('adminOrders.colPrice')}</th>
+              <th>{t('adminOrders.colStatus')}</th>
+              <th>{t('adminOrders.colCreated')}</th>
+            </tr>
+          </thead>
+          <SkeletonTableRows rows={5} columns={6} />
+        </table>
       ) : orders.length === 0 ? (
         <p className="empty-state">{t('adminOrders.empty')}</p>
       ) : (

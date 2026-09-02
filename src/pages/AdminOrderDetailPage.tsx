@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { catalogApi, notificationsApi, ordersApi, paymentsApi, usersApi } from '../api/endpoints';
 import type { GameResponse, NotificationResponse, OrderEventResponse, OrderResponse, PaymentResponse } from '../api/types';
 import { OrderIcon } from '../components/NavIcons';
+import { SkeletonCard } from '../components/Skeleton';
 import { useLocale } from '../i18n/LocaleContext';
 import { formatPrice } from '../utils/currency';
 import { formatJson } from '../utils/formatJson';
@@ -54,7 +55,24 @@ export function AdminOrderDetailPage() {
       .catch(() => setUserName(order.userId));
   }, [order]);
 
-  if (loading) return <p className="muted">{t('adminOrderDetail.loading')}</p>;
+  if (loading)
+    return (
+      <div>
+        <h1 className="page-title">
+          <OrderIcon size={26} />
+          {t('adminOrderDetail.orderPrefix', { id: orderId?.slice(0, 8) ?? '' })}
+        </h1>
+        <div aria-busy="true" aria-label={t('adminOrderDetail.loading')}>
+          <SkeletonCard lines={3} />
+          <div style={{ marginTop: 16 }}>
+            <SkeletonCard lines={3} />
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <SkeletonCard lines={3} />
+          </div>
+        </div>
+      </div>
+    );
 
   return (
     <div>
