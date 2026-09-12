@@ -13,12 +13,12 @@ import {
   CatalogIcon,
   CloseIcon,
   ContrastIcon,
+  GamesIcon,
   HamburgerIcon,
   LibraryIcon,
   LogoutIcon,
   MoonIcon,
   OrderIcon,
-  PlusIcon,
   ProfileIcon,
   SunIcon,
 } from './NavIcons';
@@ -138,9 +138,9 @@ export function NavBar() {
                   </NavLink>
                 )}
                 {isAdmin && (
-                  <NavLink to="/admin/games/new" onClick={() => setAppsMenuOpen(false)}>
-                    <PlusIcon />
-                    {t('nav.createGame')}
+                  <NavLink to="/admin/games" onClick={() => setAppsMenuOpen(false)}>
+                    <GamesIcon />
+                    {t('nav.manageGames')}
                   </NavLink>
                 )}
               </div>
@@ -202,9 +202,9 @@ export function NavBar() {
               </NavLink>
             )}
             {isAdmin && (
-              <NavLink to="/admin/games/new" onClick={() => setMenuOpen(false)}>
-                <PlusIcon />
-                {t('nav.createGame')}
+              <NavLink to="/admin/games" onClick={() => setMenuOpen(false)}>
+                <GamesIcon />
+                {t('nav.manageGames')}
               </NavLink>
             )}
             <button

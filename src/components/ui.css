@@ -525,6 +525,11 @@ pre.payload {
   flex: 1;
 }
 
+.table-row-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .payment-method-toggle {
   display: flex;
   gap: 8px;

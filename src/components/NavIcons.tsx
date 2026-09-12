@@ -206,6 +206,18 @@ export function RefreshIcon({ size = 15 }: IconProps) {
   );
 }
 
+export function GamesIcon({ size = 15 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" {...base}>
+      <path d="M6 12h4" />
+      <path d="M8 10v4" />
+      <circle cx="16" cy="11" r="0.5" fill="currentColor" stroke="none" />
+      <circle cx="18" cy="13" r="0.5" fill="currentColor" stroke="none" />
+      <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152L2 15a3 3 0 0 0 5.775 1.128L8.5 14.5h7l.725 1.628A3 3 0 0 0 22 15l-.685-6.258c-.007-.051-.011-.1-.017-.152A4 4 0 0 0 17.32 5z" />
+    </svg>
+  );
+}
+
 export function PlusIcon({ size = 15 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" {...base}>

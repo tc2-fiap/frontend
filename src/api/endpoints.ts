@@ -41,6 +41,8 @@ export const usersApi = {
 
 export const catalogApi = {
   search: (params?: {
+    page?: number;
+    pageSize?: number;
     title?: string;
     genre?: string;
     platform?: string;
@@ -52,6 +54,7 @@ export const catalogApi = {
   get: (id: string) => api.get<GameResponse>(`/api/games/${id}`),
   create: (body: CreateGameRequest) => api.post<GameResponse>('/api/games', body),
   update: (id: string, body: UpdateGameRequest) => api.put<GameResponse>(`/api/games/${id}`, body),
+  delete: (id: string) => api.delete<void>(`/api/games/${id}`),
   quotation: () => api.get<QuotationResponse>('/api/quotations/usd-brl'),
 };
 

@@ -14,6 +14,8 @@ import { AdminOrdersPage } from './pages/AdminOrdersPage';
 import { AdminOrderDetailPage } from './pages/AdminOrderDetailPage';
 import { AdminEventsPage } from './pages/AdminEventsPage';
 import { AdminCreateGamePage } from './pages/AdminCreateGamePage';
+import { AdminGamesPage } from './pages/AdminGamesPage';
+import { AdminEditGamePage } from './pages/AdminEditGamePage';
 
 export function App() {
   const { user } = useAuth();
@@ -38,7 +40,9 @@ export function App() {
               <Route path="/admin/orders" element={<AdminOrdersPage />} />
               <Route path="/admin/orders/:orderId" element={<AdminOrderDetailPage />} />
               <Route path="/admin/events" element={<AdminEventsPage />} />
+              <Route path="/admin/games" element={<AdminGamesPage />} />
               <Route path="/admin/games/new" element={<AdminCreateGamePage />} />
+              <Route path="/admin/games/:id/edit" element={<AdminEditGamePage />} />
             </Route>
           </Route>
 
