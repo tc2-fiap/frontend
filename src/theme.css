@@ -36,9 +36,10 @@
 }
 
 /* Mixed theme — same light palette as above everywhere, except the header
-   (.navbar) keeps the dark palette. The nav drawer is DOM-nested inside
-   .navbar but is visually page content, not header chrome, so it's
-   re-scoped back to light immediately below. */
+   (.navbar) and footer (.app-footer) keep the dark palette — both are
+   chrome, not page content, so they share the same override. The nav
+   drawer is DOM-nested inside .navbar but is visually page content, not
+   header chrome, so it's re-scoped back to light immediately below. */
 :root[data-theme='mixed'] {
   --color-bg: #f7f5fb;
   --color-surface: #ffffff;
@@ -48,7 +49,8 @@
   --color-text-muted: #6b6280;
 }
 
-[data-theme='mixed'] .navbar {
+[data-theme='mixed'] .navbar,
+[data-theme='mixed'] .app-footer {
   --color-bg: #0b0712;
   --color-surface: #1a1030;
   --color-surface-raised: #241a42;
