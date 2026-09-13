@@ -54,10 +54,15 @@ export function RegisterPage() {
             id="password"
             type="password"
             required
-            minLength={8}
+            minLength={12}
+            pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{12,}"
+            title={t('register.passwordHint')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <p className="muted" style={{ fontSize: 13, marginTop: 4 }}>
+            {t('register.passwordHint')}
+          </p>
         </div>
         <button type="submit" className="btn" disabled={submitting} style={{ width: '100%' }}>
           {submitting ? t('register.creating') : t('register.submit')}

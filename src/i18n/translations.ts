@@ -129,6 +129,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'register.name': 'Name',
     'register.email': 'Email',
     'register.password': 'Password',
+    'register.passwordHint':
+      'At least 12 characters, with an uppercase letter, a lowercase letter, a digit, and a special character.',
     'register.creating': 'Creating account…',
     'register.submit': 'Register',
     'register.haveAccount': 'Already have an account?',
@@ -410,6 +412,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'register.name': 'Nome',
     'register.email': 'E-mail',
     'register.password': 'Senha',
+    'register.passwordHint':
+      'No mínimo 12 caracteres, com uma letra maiúscula, uma minúscula, um dígito e um caractere especial.',
     'register.creating': 'Criando conta…',
     'register.submit': 'Cadastrar',
     'register.haveAccount': 'Já tem uma conta?',
