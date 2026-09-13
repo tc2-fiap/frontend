@@ -55,6 +55,17 @@ export function AdminEventsIcon({ size = 15 }: IconProps) {
   );
 }
 
+export function SystemHealthIcon({ size = 15 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" {...base}>
+      <rect x="2" y="3" width="20" height="6" rx="1.5" />
+      <rect x="2" y="15" width="20" height="6" rx="1.5" />
+      <circle cx="6" cy="6" r="0.5" fill="currentColor" stroke="none" />
+      <circle cx="6" cy="18" r="0.5" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function LogoutIcon({ size = 15 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" {...base}>

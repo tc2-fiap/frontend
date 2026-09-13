@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { CartIcon } from '../components/NavIcons';
+import { CartIcon, TrashIcon } from '../components/NavIcons';
 import { useCart } from '../cart/CartContext';
 import { useLocale } from '../i18n/LocaleContext';
 import { LOCALE_CURRENCY } from '../i18n/locale-currency';
@@ -53,6 +53,7 @@ export function CartPage() {
               <h3>{item.title}</h3>
               <div className="price">{formatPrice(amount, currency)}</div>
               <button type="button" className="btn secondary" onClick={() => cart.removeItem(item.gameId)}>
+                <TrashIcon size={16} />
                 {t('cart.remove')}
               </button>
             </div>

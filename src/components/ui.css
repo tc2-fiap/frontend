@@ -6,6 +6,29 @@
   flex: 1;
 }
 
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.app-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-muted);
+}
+
+.app-footer a:hover {
+  color: var(--color-text);
+}
+
 .navbar {
   display: flex;
   align-items: center;
@@ -16,7 +39,8 @@
   background: var(--color-surface);
 }
 
-.navbar nav {
+.navbar nav,
+.navbar .nav-logged-out {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -275,15 +299,26 @@
 }
 
 .badge.failed,
-.badge.rejected {
+.badge.rejected,
+.badge.unreachable {
   background: rgba(245, 65, 106, 0.15);
   color: var(--color-danger);
 }
 
+.badge.reachable {
+  background: rgba(34, 211, 238, 0.15);
+  color: var(--color-success);
+}
+
 .badge.source-users-api,
+.badge.source-catalog-api,
 .badge.source-orders-api,
 .badge.source-payments-api,
-.badge.source-notifications-api {
+.badge.source-notifications-api,
+.badge.source-platform-api,
+.badge.source-frontend,
+.badge.source-postgres,
+.badge.source-rabbitmq {
   background: var(--color-surface-raised);
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
@@ -429,6 +464,10 @@ pre.payload {
   color: var(--color-text-muted);
 }
 
+.nav-version {
+  font-size: 12px;
+}
+
 .section-title {
   font-size: 14px;
   text-transform: uppercase;
@@ -513,16 +552,6 @@ pre.payload {
   gap: 8px;
   margin-top: auto;
   padding-top: 12px;
-}
-
-.game-card-actions .cart-row {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-}
-
-.game-card-actions .cart-row .btn {
-  flex: 1;
 }
 
 .table-row-actions {

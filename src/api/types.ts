@@ -115,6 +115,23 @@ export interface PaymentCheckoutResponse {
   pixQrCodeBase64: string | null;
 }
 
+export interface ServiceVersionResponse {
+  sha: string;
+  buildTime: string;
+}
+
+export interface PodResponse {
+  name: string;
+  application: string;
+  namespace: string;
+  node: string | null;
+  phase: string;
+  readyContainers: number;
+  totalContainers: number;
+  restartCount: number;
+  startTimeUtc: string | null;
+}
+
 export interface PagedResult<T> {
   items: T[];
   page: number;

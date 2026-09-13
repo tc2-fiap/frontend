@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { catalogApi, ordersApi } from '../api/endpoints';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { FilterActions } from '../components/FilterActions';
-import { ArrowLeftIcon, LibraryIcon, OpenInNewIcon } from '../components/NavIcons';
+import { ArrowLeftIcon, LibraryIcon, OpenInNewIcon, TrashIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import { SkeletonGameCard } from '../components/Skeleton';
 import type { GameResponse, LibraryItemResponse } from '../api/types';
@@ -201,6 +201,7 @@ export function LibraryPage() {
                       <span className="badge paid">{t('library.owned')}</span>
                       <div className="game-card-actions">
                         <button type="button" className="btn secondary" onClick={() => setConfirmGameId(item.gameId)}>
+                          <TrashIcon size={16} />
                           {t('library.remove')}
                         </button>
                       </div>

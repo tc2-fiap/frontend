@@ -4,7 +4,7 @@ import { catalogApi, ordersApi } from '../api/endpoints';
 import { ApiError } from '../api/client';
 import type { GameResponse } from '../api/types';
 import { FilterActions } from '../components/FilterActions';
-import { CatalogIcon, ColumnsIcon, SortIcon } from '../components/NavIcons';
+import { CatalogIcon, CheckoutIcon, ColumnsIcon, PlusIcon, SortIcon, TrashIcon } from '../components/NavIcons';
 import { Pagination } from '../components/Pagination';
 import { PriceRangeSlider } from '../components/PriceRangeSlider';
 import { SkeletonGameCard } from '../components/Skeleton';
@@ -18,6 +18,10 @@ import { brlToUsd, formatPrice } from '../utils/currency';
 const PAGE_SIZE = 12;
 const GRID_COLS_KEY = 'fiap-games-catalog-grid-cols';
 const GRID_COLS_OPTIONS = [2, 3, 4, 5, 6];
+// The button text stays a fixed size at every density, so the icon is
+// bumped up (not down) at 4/5/6 columns — otherwise it reads as too small
+// next to the same-size label.
+const CARD_ICON_SIZES: Record<number, number> = { 2: 16, 3: 16, 4: 18, 5: 20, 6: 22 };
 
 type OwnedFilter = 'all' | 'owned' | 'not-owned';
 type SortBy = 'createdAt' | 'price' | 'platform' | 'genre' | 'title';
@@ -129,6 +133,7 @@ export function CatalogPage() {
     return true;
   });
 
+  const cardIconSize = CARD_ICON_SIZES[gridCols] ?? 16;
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -358,28 +363,16 @@ export function CatalogPage() {
                         <span className="badge paid">{t('catalog.owned')}</span>
                       ) : (
                         <div className="game-card-actions">
-                          <div className="cart-row">
-                            <button
-                              type="button"
-                              className="btn secondary"
-                              disabled={inCart}
-                              onClick={() => addToCart(game)}
-                            >
-                              {inCart ? t('catalog.inCart') : t('catalog.addToCart')}
-                            </button>
-                            {inCart && (
-                              <button
-                                type="button"
-                                className="btn danger small"
-                                aria-label={t('cart.remove')}
-                                title={t('cart.remove')}
-                                onClick={() => cart.removeItem(game.id)}
-                              >
-                                {t('cart.remove')}
-                              </button>
-                            )}
-                          </div>
+                          <button
+                            type="button"
+                            className={inCart ? 'btn danger' : 'btn secondary'}
+                            onClick={() => (inCart ? cart.removeItem(game.id) : addToCart(game))}
+                          >
+                            {inCart ? <TrashIcon size={cardIconSize} /> : <PlusIcon size={cardIconSize} />}
+                            {inCart ? t('cart.remove') : t('catalog.addToCart')}
+                          </button>
                           <button type="button" className="btn" onClick={() => buyNow(game)}>
+                            <CheckoutIcon size={cardIconSize} />
                             {t('catalog.buyNow')}
                           </button>
                         </div>

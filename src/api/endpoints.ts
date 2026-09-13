@@ -11,7 +11,9 @@ import type {
   PagedResult,
   PaymentCheckoutResponse,
   PaymentResponse,
+  PodResponse,
   QuotationResponse,
+  ServiceVersionResponse,
   UpdateGameRequest,
   UserEventResponse,
   UserResponse,
@@ -37,6 +39,7 @@ export const usersApi = {
   adminAllUserEvents: () => api.get<PagedResult<UserEventResponse>>('/api/users/admin/events?pageSize=100'),
   adminSearchByName: (name: string) =>
     api.get<PagedResult<UserResponse>>(`/api/users/admin/search${toQueryString({ name, pageSize: 100 })}`),
+  adminVersion: () => api.get<ServiceVersionResponse>('/api/users/version'),
 };
 
 export const catalogApi = {
@@ -50,12 +53,13 @@ export const catalogApi = {
     maxPrice?: number;
     sortBy?: string;
     sortDir?: string;
-  }) => api.get<PagedResult<GameResponse>>(`/api/games${toQueryString({ pageSize: 100, ...params })}`),
-  get: (id: string) => api.get<GameResponse>(`/api/games/${id}`),
-  create: (body: CreateGameRequest) => api.post<GameResponse>('/api/games', body),
-  update: (id: string, body: UpdateGameRequest) => api.put<GameResponse>(`/api/games/${id}`, body),
-  delete: (id: string) => api.delete<void>(`/api/games/${id}`),
+  }) => api.get<PagedResult<GameResponse>>(`/api/catalog${toQueryString({ pageSize: 100, ...params })}`),
+  get: (id: string) => api.get<GameResponse>(`/api/catalog/${id}`),
+  create: (body: CreateGameRequest) => api.post<GameResponse>('/api/catalog', body),
+  update: (id: string, body: UpdateGameRequest) => api.put<GameResponse>(`/api/catalog/${id}`, body),
+  delete: (id: string) => api.delete<void>(`/api/catalog/${id}`),
   quotation: () => api.get<QuotationResponse>('/api/quotations/usd-brl'),
+  adminVersion: () => api.get<ServiceVersionResponse>('/api/catalog/version'),
 };
 
 export const ordersApi = {
@@ -89,15 +93,22 @@ export const ordersApi = {
   },
   adminOrderEvents: (orderId: string) => api.get<OrderEventResponse[]>(`/api/orders/${orderId}/events`),
   adminAllOrderEvents: () => api.get<PagedResult<OrderEventResponse>>('/api/orders/admin/events?pageSize=100'),
+  adminVersion: () => api.get<ServiceVersionResponse>('/api/orders/version'),
 };
 
 export const paymentsApi = {
   adminGetByOrder: (orderId: string) => api.get<PaymentResponse>(`/api/payments/${orderId}`),
   checkout: (orderId: string) => api.get<PaymentCheckoutResponse>(`/api/payments/checkout/${orderId}`),
   adminAllPayments: () => api.get<PagedResult<PaymentResponse>>('/api/payments/admin?pageSize=100'),
+  adminVersion: () => api.get<ServiceVersionResponse>('/api/payments/version'),
 };
 
 export const notificationsApi = {
   adminGetByOrder: (orderId: string) => api.get<NotificationResponse[]>(`/api/notifications?orderId=${orderId}`),
   adminAllNotifications: () => api.get<PagedResult<NotificationResponse>>('/api/notifications/admin?pageSize=100'),
+  adminVersion: () => api.get<ServiceVersionResponse>('/api/notifications/version'),
+};
+
+export const platformApi = {
+  adminPods: () => api.get<PodResponse[]>('/api/platform/admin/pods'),
 };

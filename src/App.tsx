@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { NavBar } from './components/NavBar';
-import { RequireAdmin, RequireAuth } from './components/RouteGuards';
+import { Footer } from './components/Footer';
+import { RequireAdmin, RequireAuth, RequireGuest } from './components/RouteGuards';
 import { useAuth } from './auth/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -16,6 +17,7 @@ import { AdminEventsPage } from './pages/AdminEventsPage';
 import { AdminCreateGamePage } from './pages/AdminCreateGamePage';
 import { AdminGamesPage } from './pages/AdminGamesPage';
 import { AdminEditGamePage } from './pages/AdminEditGamePage';
+import { AdminSystemHealthPage } from './pages/AdminSystemHealthPage';
 
 export function App() {
   const { user } = useAuth();
@@ -25,8 +27,10 @@ export function App() {
       <NavBar />
       <main className="page">
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route element={<RequireGuest />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Route>
 
           <Route element={<RequireAuth />}>
             <Route path="/catalog" element={<CatalogPage />} />
@@ -43,6 +47,7 @@ export function App() {
               <Route path="/admin/games" element={<AdminGamesPage />} />
               <Route path="/admin/games/new" element={<AdminCreateGamePage />} />
               <Route path="/admin/games/:id/edit" element={<AdminEditGamePage />} />
+              <Route path="/admin/system" element={<AdminSystemHealthPage />} />
             </Route>
           </Route>
 
@@ -50,6 +55,7 @@ export function App() {
           <Route path="*" element={<Navigate to={user ? '/catalog' : '/login'} replace />} />
         </Routes>
       </main>
+      <Footer />
     </>
   );
 }

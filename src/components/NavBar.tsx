@@ -21,6 +21,7 @@ import {
   OrderIcon,
   ProfileIcon,
   SunIcon,
+  SystemHealthIcon,
 } from './NavIcons';
 import type { Theme } from '../theme/ThemeContext';
 
@@ -143,6 +144,12 @@ export function NavBar() {
                     {t('nav.manageGames')}
                   </NavLink>
                 )}
+                {isAdmin && (
+                  <NavLink to="/admin/system" onClick={() => setAppsMenuOpen(false)}>
+                    <SystemHealthIcon />
+                    {t('nav.systemHealth')}
+                  </NavLink>
+                )}
               </div>
             )}
           </div>
@@ -160,18 +167,33 @@ export function NavBar() {
         </nav>
       )}
       {!user && (
-        <button
-          type="button"
-          role="switch"
-          aria-checked={locale === 'pt'}
-          aria-label="EN / PT"
-          className="locale-toggle"
-          onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
-        >
-          <span className={locale === 'en' ? 'locale-toggle-option active' : 'locale-toggle-option'}>EN</span>
-          <span className={locale === 'pt' ? 'locale-toggle-option active' : 'locale-toggle-option'}>PT</span>
-          <span className="locale-toggle-thumb" />
-        </button>
+        <div className="nav-logged-out">
+          <button
+            type="button"
+            className="theme-toggle"
+            aria-label={t(`nav.theme.${theme}`)}
+            onClick={() => setTheme(nextTheme(theme))}
+          >
+            {THEME_OPTIONS.map(({ value, icon: Icon }) => (
+              <span key={value} className={theme === value ? 'theme-toggle-option active' : 'theme-toggle-option'}>
+                <Icon size={12} />
+              </span>
+            ))}
+          </button>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={locale === 'pt'}
+            aria-label="EN / PT"
+            className="locale-toggle"
+            onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
+          >
+            <span className={locale === 'en' ? 'locale-toggle-option active' : 'locale-toggle-option'}>EN</span>
+            <span className={locale === 'pt' ? 'locale-toggle-option active' : 'locale-toggle-option'}>PT</span>
+            <span className="locale-toggle-thumb" />
+          </button>
+          <span className="muted nav-version">v{__APP_VERSION__}</span>
+        </div>
       )}
       {user && menuOpen && (
         <>
@@ -207,6 +229,12 @@ export function NavBar() {
                 {t('nav.manageGames')}
               </NavLink>
             )}
+            {isAdmin && (
+              <NavLink to="/admin/system" onClick={() => setMenuOpen(false)}>
+                <SystemHealthIcon />
+                {t('nav.systemHealth')}
+              </NavLink>
+            )}
             <button
               type="button"
               className="link"
@@ -219,6 +247,7 @@ export function NavBar() {
               <LogoutIcon />
               {t('nav.logout')}
             </button>
+            <span className="muted nav-version">v{__APP_VERSION__}</span>
           </div>
         </>
       )}
