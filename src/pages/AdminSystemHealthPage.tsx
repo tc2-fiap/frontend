@@ -2,17 +2,26 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { catalogApi, notificationsApi, ordersApi, paymentsApi, platformApi, usersApi } from '../api/endpoints';
 import type { PodResponse } from '../api/types';
+import { ConfirmModal } from '../components/ConfirmModal';
+import { fetchCommitsAhead } from '../api/github';
 import { AdminEventsIcon, ArrowLeftIcon, RefreshIcon } from '../components/NavIcons';
 import { SkeletonTableRows } from '../components/Skeleton';
 import { useLocale } from '../i18n/LocaleContext';
 
 type ServiceName = 'users-api' | 'catalog-api' | 'orders-api' | 'payments-api' | 'notifications-api' | 'platform-api';
 
+// The one restartable target with no git-SHA-based /version to diff against
+// (it ships package.json's own semver instead — notes.md 77) — kept out of
+// ServiceName/SERVICES (the commit-drift table) but still restartable.
+const FRONTEND = 'frontend' as const;
+type RestartTarget = ServiceName | typeof FRONTEND;
+
 interface ServiceRow {
   name: ServiceName;
   reachable: boolean;
   sha: string | null;
   buildTime: string | null;
+  commitsAhead: number | null;
 }
 
 const SERVICES: { name: ServiceName; fetchVersion: () => Promise<{ sha: string; buildTime: string }> }[] = [
@@ -40,22 +49,39 @@ function formatAge(startTimeUtc: string | null): string {
 // six services' own /version, plus platform-api's pod list) — never a
 // backend aggregator. Same "compose at the view layer" precedent as
 // AdminEventsPage (notes.md 30) — one source failing shows an
-// "unreachable" row instead of blanking the whole page.
+// "unreachable" row instead of blanking the whole page. The commit-drift
+// check (GitHub's compare API, called directly from the browser — see
+// api/github.ts) is a second, independent, best-effort layer on top: it
+// never blocks the table from rendering and fails silently to "—".
 export function AdminSystemHealthPage() {
   const [services, setServices] = useState<ServiceRow[]>([]);
   const [pods, setPods] = useState<PodResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [restartTarget, setRestartTarget] = useState<RestartTarget | null>(null);
+  const [restarting, setRestarting] = useState(false);
+  const [restartError, setRestartError] = useState<string | null>(null);
   const { t } = useLocale();
 
   function fetchAll() {
     Promise.allSettled(SERVICES.map((s) => s.fetchVersion())).then((results) => {
-      setServices(
-        results.map((result, i) => ({
-          name: SERVICES[i].name,
-          reachable: result.status === 'fulfilled',
-          sha: result.status === 'fulfilled' ? result.value.sha : null,
-          buildTime: result.status === 'fulfilled' ? result.value.buildTime : null,
-        })),
+      const rows: ServiceRow[] = results.map((result, i) => ({
+        name: SERVICES[i].name,
+        reachable: result.status === 'fulfilled',
+        sha: result.status === 'fulfilled' ? result.value.sha : null,
+        buildTime: result.status === 'fulfilled' ? result.value.buildTime : null,
+        commitsAhead: null,
+      }));
+      setServices(rows);
+
+      Promise.allSettled(rows.map((row) => (row.sha ? fetchCommitsAhead(row.name, row.sha) : Promise.resolve(null)))).then(
+        (checks) => {
+          setServices((current) =>
+            current.map((row, i) => {
+              const check = checks[i];
+              return { ...row, commitsAhead: check.status === 'fulfilled' && check.value ? check.value.aheadBy : null };
+            }),
+          );
+        },
       );
     });
 
@@ -67,6 +93,20 @@ export function AdminSystemHealthPage() {
   }
 
   useEffect(fetchAll, []);
+
+  async function handleConfirmRestart() {
+    if (!restartTarget) return;
+    setRestarting(true);
+    setRestartError(null);
+    try {
+      await platformApi.restartService(restartTarget);
+      setRestartTarget(null);
+    } catch {
+      setRestartError(t('adminSystemHealth.restartError', { service: restartTarget }));
+    } finally {
+      setRestarting(false);
+    }
+  }
 
   return (
     <div>
@@ -94,9 +134,11 @@ export function AdminSystemHealthPage() {
               <th>{t('adminSystemHealth.colStatus')}</th>
               <th>{t('adminSystemHealth.colSha')}</th>
               <th>{t('adminSystemHealth.colBuildTime')}</th>
+              <th>{t('adminSystemHealth.colCommits')}</th>
+              <th>{t('adminSystemHealth.colActions')}</th>
             </tr>
           </thead>
-          <SkeletonTableRows rows={5} columns={4} />
+          <SkeletonTableRows rows={5} columns={6} />
         </table>
       ) : (
         <table>
@@ -106,25 +148,78 @@ export function AdminSystemHealthPage() {
               <th>{t('adminSystemHealth.colStatus')}</th>
               <th>{t('adminSystemHealth.colSha')}</th>
               <th>{t('adminSystemHealth.colBuildTime')}</th>
+              <th>{t('adminSystemHealth.colCommits')}</th>
+              <th>{t('adminSystemHealth.colActions')}</th>
             </tr>
           </thead>
           <tbody>
-            {services.map((service) => (
-              <tr key={service.name}>
-                <td>
-                  <span className={`badge source-${service.name}`}>{service.name}</span>
-                </td>
-                <td>
-                  <span className={`badge ${service.reachable ? 'reachable' : 'unreachable'}`}>
-                    {service.reachable ? t('adminSystemHealth.reachable') : t('adminSystemHealth.unreachable')}
-                  </span>
-                </td>
-                <td>{service.sha ? service.sha.slice(0, 7) : '—'}</td>
-                <td>{service.buildTime ?? '—'}</td>
-              </tr>
-            ))}
+            {services.map((service) => {
+              const restartDisabled = (service.commitsAhead ?? 0) > 0;
+              return (
+                <tr key={service.name}>
+                  <td>
+                    <span className={`badge source-${service.name}`}>{service.name}</span>
+                  </td>
+                  <td>
+                    <span className={`badge ${service.reachable ? 'reachable' : 'unreachable'}`}>
+                      {service.reachable ? t('adminSystemHealth.reachable') : t('adminSystemHealth.unreachable')}
+                    </span>
+                  </td>
+                  <td>{service.sha ? service.sha.slice(0, 7) : '—'}</td>
+                  <td>{service.buildTime ?? '—'}</td>
+                  <td>
+                    {service.commitsAhead === null ? (
+                      '—'
+                    ) : service.commitsAhead === 0 ? (
+                      <span className="badge reachable">{t('adminSystemHealth.upToDate')}</span>
+                    ) : (
+                      <span className="badge pending">{t('adminSystemHealth.commitsAhead', { n: service.commitsAhead })}</span>
+                    )}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn secondary"
+                      disabled={restartDisabled}
+                      title={restartDisabled ? t('adminSystemHealth.restartDisabledTooltip') : undefined}
+                      onClick={() => setRestartTarget(service.name)}
+                    >
+                      {t('adminSystemHealth.restart')}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+            <tr>
+              <td>
+                <span className="badge source-frontend">{FRONTEND}</span>
+              </td>
+              <td>
+                <span className="badge reachable">{t('adminSystemHealth.reachable')}</span>
+              </td>
+              <td>{`v${__APP_VERSION__}`}</td>
+              <td>—</td>
+              <td>—</td>
+              <td>
+                <button type="button" className="btn secondary" onClick={() => setRestartTarget(FRONTEND)}>
+                  {t('adminSystemHealth.restart')}
+                </button>
+              </td>
+            </tr>
           </tbody>
         </table>
+      )}
+      {restartError && <p className="error">{restartError}</p>}
+      {restartTarget && (
+        <ConfirmModal
+          title={t('adminSystemHealth.restartTitle', { service: restartTarget })}
+          message={t('adminSystemHealth.restartMessage', { service: restartTarget })}
+          confirmLabel={t('adminSystemHealth.restartConfirm')}
+          cancelLabel={t('adminSystemHealth.restartCancel')}
+          busy={restarting}
+          onCancel={() => setRestartTarget(null)}
+          onConfirm={handleConfirmRestart}
+        />
       )}
 
       <h2>{t('adminSystemHealth.podsTitle')}</h2>
