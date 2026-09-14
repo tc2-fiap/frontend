@@ -10,9 +10,11 @@ import { useLocale } from '../i18n/LocaleContext';
 
 type ServiceName = 'users-api' | 'catalog-api' | 'orders-api' | 'payments-api' | 'notifications-api' | 'platform-api';
 
-// The one restartable target with no git-SHA-based /version to diff against
-// (it ships package.json's own semver instead — notes.md 77) — kept out of
-// ServiceName/SERVICES (the commit-drift table) but still restartable.
+// Kept out of ServiceName/SERVICES since it has no HTTP /version endpoint
+// to poll (it's not a backend) — its own commit-drift check instead reads
+// __BUILD_SHA__, a compile-time constant already baked into this very
+// bundle (vite.config.ts), no network round-trip needed to know its own
+// build. Still restartable like every other row.
 const FRONTEND = 'frontend' as const;
 type RestartTarget = ServiceName | typeof FRONTEND;
 
@@ -60,6 +62,7 @@ export function AdminSystemHealthPage() {
   const [restartTarget, setRestartTarget] = useState<RestartTarget | null>(null);
   const [restarting, setRestarting] = useState(false);
   const [restartError, setRestartError] = useState<string | null>(null);
+  const [frontendCommitsAhead, setFrontendCommitsAhead] = useState<number | null>(null);
   const { t } = useLocale();
 
   function fetchAll() {
@@ -84,6 +87,14 @@ export function AdminSystemHealthPage() {
         },
       );
     });
+
+    // Same check as every backend row, just off the bundle's own compile-time
+    // constant (vite.config.ts) instead of an HTTP round-trip — this is
+    // already the code running the page doing the check, no /version call
+    // needed to know its own build.
+    fetchCommitsAhead(FRONTEND, __BUILD_SHA__)
+      .then((check) => setFrontendCommitsAhead(check?.aheadBy ?? null))
+      .catch(() => setFrontendCommitsAhead(null));
 
     platformApi
       .adminPods()
@@ -197,11 +208,25 @@ export function AdminSystemHealthPage() {
               <td>
                 <span className="badge reachable">{t('adminSystemHealth.reachable')}</span>
               </td>
-              <td>{`v${__APP_VERSION__}`}</td>
-              <td>—</td>
-              <td>—</td>
+              <td>{__BUILD_SHA__ === 'unknown' ? '—' : __BUILD_SHA__.slice(0, 7)}</td>
+              <td>{__BUILD_TIME__ === 'unknown' ? '—' : __BUILD_TIME__}</td>
               <td>
-                <button type="button" className="btn secondary" onClick={() => setRestartTarget(FRONTEND)}>
+                {frontendCommitsAhead === null ? (
+                  '—'
+                ) : frontendCommitsAhead === 0 ? (
+                  <span className="badge reachable">{t('adminSystemHealth.upToDate')}</span>
+                ) : (
+                  <span className="badge pending">{t('adminSystemHealth.commitsAhead', { n: frontendCommitsAhead })}</span>
+                )}
+              </td>
+              <td>
+                <button
+                  type="button"
+                  className="btn secondary"
+                  disabled={(frontendCommitsAhead ?? 0) > 0}
+                  title={(frontendCommitsAhead ?? 0) > 0 ? t('adminSystemHealth.restartDisabledTooltip') : undefined}
+                  onClick={() => setRestartTarget(FRONTEND)}
+                >
                   {t('adminSystemHealth.restart')}
                 </button>
               </td>

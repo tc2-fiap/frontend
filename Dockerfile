@@ -1,11 +1,16 @@
 FROM node:22-alpine AS build
 WORKDIR /src
 
+# git is needed only to bake this build's own commit SHA into the bundle
+# (BUILD_SHA below, read by vite.config.ts's `define` block) — the build
+# context here is already this repo's own root, so .git is present.
+RUN apk add --no-cache git
+
 COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
+RUN BUILD_SHA="$(git rev-parse HEAD)" BUILD_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)" npm run build
 
 FROM nginx:1.27-alpine AS runtime
 
