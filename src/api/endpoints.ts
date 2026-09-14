@@ -112,4 +112,5 @@ export const notificationsApi = {
 
 export const platformApi = {
   adminPods: () => api.get<PodResponse[]>('/api/platform/admin/pods'),
+  adminVersion: () => api.get<ServiceVersionResponse>('/api/platform/version'),
 };

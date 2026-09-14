@@ -6,7 +6,7 @@ import { AdminEventsIcon, ArrowLeftIcon, RefreshIcon } from '../components/NavIc
 import { SkeletonTableRows } from '../components/Skeleton';
 import { useLocale } from '../i18n/LocaleContext';
 
-type ServiceName = 'users-api' | 'catalog-api' | 'orders-api' | 'payments-api' | 'notifications-api';
+type ServiceName = 'users-api' | 'catalog-api' | 'orders-api' | 'payments-api' | 'notifications-api' | 'platform-api';
 
 interface ServiceRow {
   name: ServiceName;
@@ -21,6 +21,7 @@ const SERVICES: { name: ServiceName; fetchVersion: () => Promise<{ sha: string; 
   { name: 'orders-api', fetchVersion: ordersApi.adminVersion },
   { name: 'payments-api', fetchVersion: paymentsApi.adminVersion },
   { name: 'notifications-api', fetchVersion: notificationsApi.adminVersion },
+  { name: 'platform-api', fetchVersion: platformApi.adminVersion },
 ];
 
 // Pods run to completion or restart on their own timeline — a coarse
@@ -35,11 +36,11 @@ function formatAge(startTimeUtc: string | null): string {
   return `${Math.floor(hours / 24)}d`;
 }
 
-// Composed at the view layer from six independent admin endpoints (five
-// services' own /version, plus platform-api's pod list) — never a backend
-// aggregator. Same "compose at the view layer" precedent as AdminEventsPage
-// (notes.md 30) — one source failing shows an "unreachable" row instead of
-// blanking the whole page.
+// Composed at the view layer from seven independent admin endpoints (all
+// six services' own /version, plus platform-api's pod list) — never a
+// backend aggregator. Same "compose at the view layer" precedent as
+// AdminEventsPage (notes.md 30) — one source failing shows an
+// "unreachable" row instead of blanking the whole page.
 export function AdminSystemHealthPage() {
   const [services, setServices] = useState<ServiceRow[]>([]);
   const [pods, setPods] = useState<PodResponse[]>([]);
