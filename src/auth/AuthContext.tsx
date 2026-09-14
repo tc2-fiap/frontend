@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { usersApi } from '../api/endpoints';
 import { clearToken, getToken, setToken as persistToken } from '../api/client';
 import { decodeJwt } from './jwt';
 
@@ -36,6 +37,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(userFromToken(token));
       },
       logout: () => {
+        // Best-effort server-side revocation — fired before clearing the
+        // token (so it's still attached as the Authorization header) but
+        // never awaited, so a network hiccup can't strand the user
+        // mid-logout. Local state is cleared unconditionally either way.
+        void usersApi.logout().catch(() => {});
         clearToken();
         setUser(null);
       },
