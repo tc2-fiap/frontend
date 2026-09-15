@@ -14,9 +14,16 @@ type ServiceName = 'users-api' | 'catalog-api' | 'orders-api' | 'payments-api' |
 // to poll (it's not a backend) — its own commit-drift check instead reads
 // __BUILD_SHA__, a compile-time constant already baked into this very
 // bundle (vite.config.ts), no network round-trip needed to know its own
-// build. Still restartable like every other row.
+// build. Still restartable/stoppable like every other row.
 const FRONTEND = 'frontend' as const;
-type RestartTarget = ServiceName | typeof FRONTEND;
+type ServiceTarget = ServiceName | typeof FRONTEND;
+
+type ServiceAction = 'restart' | 'stop' | 'start';
+
+interface PendingAction {
+  action: ServiceAction;
+  service: ServiceTarget;
+}
 
 interface ServiceRow {
   name: ServiceName;
@@ -59,11 +66,21 @@ export function AdminSystemHealthPage() {
   const [services, setServices] = useState<ServiceRow[]>([]);
   const [pods, setPods] = useState<PodResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [restartTarget, setRestartTarget] = useState<RestartTarget | null>(null);
-  const [restarting, setRestarting] = useState(false);
-  const [restartError, setRestartError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [frontendCommitsAhead, setFrontendCommitsAhead] = useState<number | null>(null);
   const { t } = useLocale();
+
+  // A Stop scales a Deployment to 0 replicas, so "is it running" is just
+  // "does at least one pod for this app exist right now" — reusing the same
+  // Pods data already being polled rather than a second signal. A Restart's
+  // rolling update never drops replicas below 1 (the new pod comes up before
+  // the old one terminates), so this can't misread a restart-in-progress as
+  // stopped.
+  function isRunning(name: ServiceTarget): boolean {
+    return pods.some((pod) => pod.application === name);
+  }
 
   function fetchAll() {
     Promise.allSettled(SERVICES.map((s) => s.fetchVersion())).then((results) => {
@@ -105,23 +122,31 @@ export function AdminSystemHealthPage() {
 
   useEffect(fetchAll, []);
 
-  async function handleConfirmRestart() {
-    if (!restartTarget) return;
-    setRestarting(true);
-    setRestartError(null);
+  const ACTION_API: Record<ServiceAction, (name: string) => Promise<void>> = {
+    restart: platformApi.restartService,
+    stop: platformApi.stopService,
+    start: platformApi.startService,
+  };
+
+  async function handleConfirmAction() {
+    if (!pendingAction) return;
+    const { action, service } = pendingAction;
+    setActionBusy(true);
+    setActionError(null);
     try {
-      await platformApi.restartService(restartTarget);
-      setRestartTarget(null);
-      // The request itself only confirms the restart was triggered, not that
-      // the rollout finished — refetch so the Pods table actually reflects
-      // it, the same data a manual "Refresh" click would show. Without this,
-      // the page just sits on stale data with zero visible change, which
-      // looks identical to the request having done nothing at all.
+      await ACTION_API[action](service);
+      setPendingAction(null);
+      // The request itself only confirms the action was triggered, not that
+      // the rollout/scale finished — refetch so the Services/Pods tables
+      // actually reflect it, the same data a manual "Refresh" click would
+      // show. Without this, the page just sits on stale data with zero
+      // visible change, which looks identical to the request having done
+      // nothing at all.
       fetchAll();
     } catch {
-      setRestartError(t('adminSystemHealth.restartError', { service: restartTarget }));
+      setActionError(t(`adminSystemHealth.${action}Error`, { service }));
     } finally {
-      setRestarting(false);
+      setActionBusy(false);
     }
   }
 
@@ -171,6 +196,7 @@ export function AdminSystemHealthPage() {
           </thead>
           <tbody>
             {services.map((service) => {
+              const running = isRunning(service.name);
               const restartDisabled = (service.commitsAhead ?? 0) > 0;
               return (
                 <tr key={service.name}>
@@ -178,8 +204,12 @@ export function AdminSystemHealthPage() {
                     <span className={`badge source-${service.name}`}>{service.name}</span>
                   </td>
                   <td>
-                    <span className={`badge ${service.reachable ? 'reachable' : 'unreachable'}`}>
-                      {service.reachable ? t('adminSystemHealth.reachable') : t('adminSystemHealth.unreachable')}
+                    <span className={`badge ${!running ? 'pending' : service.reachable ? 'reachable' : 'unreachable'}`}>
+                      {!running
+                        ? t('adminSystemHealth.stopped')
+                        : service.reachable
+                          ? t('adminSystemHealth.reachable')
+                          : t('adminSystemHealth.unreachable')}
                     </span>
                   </td>
                   <td>{service.sha ? service.sha.slice(0, 7) : '—'}</td>
@@ -193,16 +223,37 @@ export function AdminSystemHealthPage() {
                       <span className="badge pending">{t('adminSystemHealth.commitsAhead', { n: service.commitsAhead })}</span>
                     )}
                   </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn secondary"
-                      disabled={restartDisabled}
-                      title={restartDisabled ? t('adminSystemHealth.restartDisabledTooltip') : undefined}
-                      onClick={() => setRestartTarget(service.name)}
-                    >
-                      {t('adminSystemHealth.restart')}
-                    </button>
+                  <td className="actions-cell">
+                    {running ? (
+                      <>
+                        <button
+                          type="button"
+                          className="btn secondary"
+                          disabled={restartDisabled}
+                          title={restartDisabled ? t('adminSystemHealth.restartDisabledTooltip') : undefined}
+                          onClick={() => setPendingAction({ action: 'restart', service: service.name })}
+                        >
+                          {t('adminSystemHealth.restart')}
+                        </button>
+                        {service.name !== 'platform-api' && (
+                          <button
+                            type="button"
+                            className="btn secondary"
+                            onClick={() => setPendingAction({ action: 'stop', service: service.name })}
+                          >
+                            {t('adminSystemHealth.stop')}
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn secondary"
+                        onClick={() => setPendingAction({ action: 'start', service: service.name })}
+                      >
+                        {t('adminSystemHealth.start')}
+                      </button>
+                    )}
                   </td>
                 </tr>
               );
@@ -212,7 +263,9 @@ export function AdminSystemHealthPage() {
                 <span className="badge source-frontend">{FRONTEND}</span>
               </td>
               <td>
-                <span className="badge reachable">{t('adminSystemHealth.reachable')}</span>
+                <span className={`badge ${isRunning(FRONTEND) ? 'reachable' : 'pending'}`}>
+                  {isRunning(FRONTEND) ? t('adminSystemHealth.reachable') : t('adminSystemHealth.stopped')}
+                </span>
               </td>
               <td>{__BUILD_SHA__ === 'unknown' ? '—' : __BUILD_SHA__.slice(0, 7)}</td>
               <td>{__BUILD_TIME__ === 'unknown' ? '—' : __BUILD_TIME__}</td>
@@ -225,31 +278,55 @@ export function AdminSystemHealthPage() {
                   <span className="badge pending">{t('adminSystemHealth.commitsAhead', { n: frontendCommitsAhead })}</span>
                 )}
               </td>
-              <td>
-                <button
-                  type="button"
-                  className="btn secondary"
-                  disabled={(frontendCommitsAhead ?? 0) > 0}
-                  title={(frontendCommitsAhead ?? 0) > 0 ? t('adminSystemHealth.restartDisabledTooltip') : undefined}
-                  onClick={() => setRestartTarget(FRONTEND)}
-                >
-                  {t('adminSystemHealth.restart')}
-                </button>
+              <td className="actions-cell">
+                {isRunning(FRONTEND) ? (
+                  <>
+                    <button
+                      type="button"
+                      className="btn secondary"
+                      disabled={(frontendCommitsAhead ?? 0) > 0}
+                      title={(frontendCommitsAhead ?? 0) > 0 ? t('adminSystemHealth.restartDisabledTooltip') : undefined}
+                      onClick={() => setPendingAction({ action: 'restart', service: FRONTEND })}
+                    >
+                      {t('adminSystemHealth.restart')}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn secondary"
+                      onClick={() => setPendingAction({ action: 'stop', service: FRONTEND })}
+                    >
+                      {t('adminSystemHealth.stop')}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn secondary"
+                    onClick={() => setPendingAction({ action: 'start', service: FRONTEND })}
+                  >
+                    {t('adminSystemHealth.start')}
+                  </button>
+                )}
               </td>
             </tr>
           </tbody>
         </table>
       )}
-      {restartError && <p className="error">{restartError}</p>}
-      {restartTarget && (
+      {actionError && <p className="error">{actionError}</p>}
+      {pendingAction && (
         <ConfirmModal
-          title={t('adminSystemHealth.restartTitle', { service: restartTarget })}
-          message={t('adminSystemHealth.restartMessage', { service: restartTarget })}
-          confirmLabel={t('adminSystemHealth.restartConfirm')}
-          cancelLabel={t('adminSystemHealth.restartCancel')}
-          busy={restarting}
-          onCancel={() => setRestartTarget(null)}
-          onConfirm={handleConfirmRestart}
+          title={t(`adminSystemHealth.${pendingAction.action}Title`, { service: pendingAction.service })}
+          message={
+            pendingAction.action === 'stop' && pendingAction.service === FRONTEND
+              ? `${t('adminSystemHealth.stopMessage', { service: pendingAction.service })} ${t('adminSystemHealth.frontendStopWarning')}`
+              : t(`adminSystemHealth.${pendingAction.action}Message`, { service: pendingAction.service })
+          }
+          confirmLabel={t(`adminSystemHealth.${pendingAction.action}Confirm`)}
+          cancelLabel={t(`adminSystemHealth.${pendingAction.action}Cancel`)}
+          danger={pendingAction.action === 'stop'}
+          busy={actionBusy}
+          onCancel={() => setPendingAction(null)}
+          onConfirm={handleConfirmAction}
         />
       )}
 
