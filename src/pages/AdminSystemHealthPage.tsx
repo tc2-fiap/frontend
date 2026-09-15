@@ -112,6 +112,12 @@ export function AdminSystemHealthPage() {
     try {
       await platformApi.restartService(restartTarget);
       setRestartTarget(null);
+      // The request itself only confirms the restart was triggered, not that
+      // the rollout finished — refetch so the Pods table actually reflects
+      // it, the same data a manual "Refresh" click would show. Without this,
+      // the page just sits on stale data with zero visible change, which
+      // looks identical to the request having done nothing at all.
+      fetchAll();
     } catch {
       setRestartError(t('adminSystemHealth.restartError', { service: restartTarget }));
     } finally {

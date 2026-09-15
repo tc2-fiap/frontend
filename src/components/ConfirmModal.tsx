@@ -34,7 +34,14 @@ export function ConfirmModal({
           <button type="button" className="btn secondary" onClick={onCancel} disabled={busy}>
             {cancelLabel}
           </button>
-          <button type="button" className={danger ? 'btn danger' : 'btn'} onClick={onConfirm} disabled={busy}>
+          <button
+            type="button"
+            className={danger ? 'btn danger' : 'btn'}
+            onClick={onConfirm}
+            disabled={busy}
+            aria-busy={busy || undefined}
+          >
+            {busy && <span className="btn-spinner" aria-hidden="true" />}
             {confirmLabel}
           </button>
         </div>
