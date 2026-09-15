@@ -18,10 +18,20 @@ spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 101
+      automountServiceAccountToken: false
       containers:
         - name: frontend
           securityContext:
             allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
